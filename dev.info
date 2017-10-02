@@ -1,0 +1,33 @@
+Installation
+
+(muss als Root ausgeführt werden)
+bash raspiBackupInstall.sh -c -k 
+
+Usage: sudo raspiBackupInstall.sh [[-c] [-l DE | EN]] | [-u] | [-h]
+
+       No options will start a configuration wizzard and prompt for the most important configuration parameters
+
+       -b - Install the beta version if available
+       -c - Install default config file in /usr/local/etc/raspiBackup.conf
+       -e - Install and configure sampleextensions
+       -k - Keep installscript after successful installation
+       -l - Install English (EN) or German (DE) version of the config file
+       If -c is used without -l the current system language is used for the config file
+       -r - Updates the local script version with the latest script version available (Current configuration file will not be modified)
+
+       -U - Uninstall raspiBackup.sh with it's configuration file and the installer
+
+
+Config File:  /usr/local/etc/raspiBackup.conf
+Backup: /usr/local/bin/raspiBackup.sh
+Installer: /usr/local/bin/raspiBackupInstall.sh
+
+Quick-Tipp:
+Windows Share mounten
+mkdir /mnt/backup
+mount -t cifs -o username=christian,password=<hallo> //homeserver/Loxberry-Backuptests /mnt/backup
+df -h
+
+DD-Backup ausführen
+====================
+ raspiBackup.sh -F -a ":" -o ":" -k 3 -t dd -z  /mnt/backup/
