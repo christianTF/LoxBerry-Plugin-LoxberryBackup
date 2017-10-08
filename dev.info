@@ -30,4 +30,4 @@ df -h
 
 DD-Backup ausführen
 ====================
- raspiBackup.sh -F -a ":" -o ":" -k 3 -t dd -z  /mnt/backup/
+ raspiBackup.sh -F -a ":" -o ":" -k 3 -t dd -z  /backup/

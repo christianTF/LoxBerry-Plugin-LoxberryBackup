@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="/plugins/<!--$pluginname-->/style.css">
+<center>
+	
+<form method="post" data-ajax="false" name="main_form" id="main_form" action="./lms2udp.cgi">
+	<input type="hidden" name="saveformdata" value="1">
+	<input type="hidden" name="ConfigVersion" value="<!--$cfgversion-->">
+	<h1><!--$T::LMS2UDP_HEADING_BASICSETTINGS--></h1>
+		
+	<div style="align: center text-align: center; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px;">
+	  
+
+	<table border="1" cellpadding="2" cellspacing="2" style="background-color: #ffffff;">
+	  <tr>
+	  <td style="border-width : 0px;"><!--$T::LMS2UDP_ACTIVATE--></td>
+	  <td style="border-width : 0px;"><input type="checkbox" name="LMS2UDP_activated" value="True" <!--$lms2udp_activated-->></p></td>
+	  <td style="border-width : 0px;"><!--$T::LMS2UDP_ACTIVATE_FORMAT--></td>
+	  </tr>
+	  <!--$html_miniserver-->
+	  <tr>
+	  <td style="border-width : 0px;"><!--$T::LMS2UDP_UDPPORT--></td>
+	  <td style="border-width : 0px;"><input type="text" name="UDPPORT" value="<!--$lms2udp_udpport-->"></p></td>
+	  <td style="border-width : 0px;"><!--$T::LMS2UDP_UDPPORT_FORMAT--></td>
+	  </tr>
+	  <tr>
+	  <td style="border-width : 0px;"><!--$T::LMS2UDP_LMSADDRESS--></td>
+	  <td style="border-width : 0px;"><input type="text" name="LMSServer" value="<!--$squ_server-->"></td>
+	  <td style="border-width : 0px;"><!--$T::LMS2UDP_LMSADDRESS_FORMAT--></td>
+	  </tr>
+	  <tr>
+	  <td colspan="3">&nbsp;</td>
+	  </tr>
+	  
+	  <tr>
+	  <td colspan="3" style="border-width : 0px;">
+		<table border="0" cellpadding="2" cellspacing="2" style="background-color: #eeeeee;">
+		<tr>
+		<td colspan="5" style="border-width : 0px;"><center><!--$T::LMS2UDP_ZONELABEL_HINT--></center></td>
+		</tr>
+		<tr>
+			<td><center><label for="LMS2UDP_Disconnected"><!--$T::LMS2UDP_ZONELABEL_DISCONNECTED--></label><input type="text" name="LMS2UDP_Disconnected" value="<!--$lms2udp_disconnected-->"></center></td>
+			<td><center><label for="LMS2UDP_Poweredoff"><!--$T::LMS2UDP_ZONELABEL_POWEREDOFF--></label><input type="text" name="LMS2UDP_Poweredoff" value="<!--$lms2udp_poweredoff-->"></center></td>
+			<td><center><label for="LMS2UDP_Stopped"><!--$T::LMS2UDP_ZONELABEL_STOPPED--></label><input type="text" name="LMS2UDP_Stopped" value="<!--$lms2udp_stopped-->"></center></td>
+			<td><center><label for="LMS2UDP_Playing"><!--$T::LMS2UDP_ZONELABEL_PLAYING--></label><input type="text" name="LMS2UDP_Playing" value="<!--$lms2udp_playing-->"></center></td>
+			<td><center><label for="LMS2UDP_Paused"><!--$T::LMS2UDP_ZONELABEL_PAUSED--></label><input type="text" name="LMS2UDP_Paused" value="<!--$lms2udp_paused-->"></center></td>
+		</tr>
+		</table>
+	  <td>
+	  </tr>
+	</table>
+	</div>
+	<a href="#" id="basic_showmore"><!--$T::LMS2UDP_SHOWMORE--></a>
+	<div style="align: center text-align: center; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px; display:none;" id="basic_table_advanced">
+	<table border="1" cellpadding="2" cellspacing="2" style="background-color: #ffffff;" >
+	  <tr>
+	  <td style="border-width : 0px;"><!--$T::BASIC_LMSWEBPORT--></td>
+	  <td style="border-width : 0px;"><input type="text" name="LMSWebPort" value="<!--$squ_lmswebport-->"></td>
+	  <td style="border-width : 0px;"><!--$T::BASIC_LMSWEBPORT_FORMAT--></td>
+	  </tr>
+	  <tr>
+	  <td style="border-width : 0px;"><!--$T::BASIC_LMSCLIPORT--></td>
+	  <td style="border-width : 0px;"><input type="text" name="LMSCLIPort" value="<!--$squ_lmscliport-->"></td>
+	  <td style="border-width : 0px;"><!--$T::BASIC_LMSCLIPORT_FORMAT--></td>
+	  </tr>
+	  <tr>
+	  <td style="border-width : 0px;"><!--$T::BASIC_LMSDATAPORT--></td>
+	  <td style="border-width : 0px;"><input type="text" name="LMSDATAPort" value="<!--$squ_lmsdataport-->"></td>
+	  <td style="border-width : 0px;"><!--$T::BASIC_LMSDATAPORT_FORMAT--></td>
+	  </tr>
+	  <tr>
+	  <td style="border-width : 0px;"><!--$T::LMS2UDP_LOXBERRYTCPPORT--></td>
+	  <td style="border-width : 0px;"><input type="text" name="LOXBERRYPort" value="<!--$lms2udp_berrytcpport-->"></td>
+	  <td style="border-width : 0px;"><!--$T::LMS2UDP_LOXBERRYTCPPORT_FORMAT--></td>
+	  </tr>
+
+	  <tr style="display:none;">
+	  <td style="border-width : 0px;"><!--$T::BASIC_DEBUGMODE--></td>
+	  <td style="border-width : 0px;"><input type="checkbox" data-role="flipswitch" name="debug" id="switch" value="Yes" <!--$squ_debug_enabled--></td>
+	  <td style="border-width : 0px;"><!--$T::BASIC_DEBUG_USEWITHCARE--></td> 
+	</table>
+	</div>
+
+<p>
+<center>
+<a id="btncancel" data-role="button" data-inline="true" data-mini="true" data-icon="delete" href="#"><!--$T::BUTTON_CANCEL--></a>
+<button type="submit" form="main_form" name="applybtn" value="submit" id="btnsubmit" data-role="button" data-inline="true" data-mini="true" data-icon="check"><!--$T::BUTTON_SAVE--></button>
+<button onclick="openTemplateWizzard()" type="button" tabindex="-1" name="btnwizzard" value="apply" id="btnwizzard" data-role="button" data-inline="true" data-mini="true" data-icon="grid"><!--$T::BUTTON_WIZZARD--></button>
+</form>
+<!-- <p><!--$T::LMS2UDP_DOWNLOAD_HINT--></p> -->
+<script>
+$('#btncancel').click(function() {
+    location.reload();
+	return false;
+});
+
+function openTemplateWizzard() {
+	window.open('./templatebuilder.cgi', '_blank', 'menubar=0,scrollbars=1,status=0,toolbar=0', 'replace=false');
+}
+
+</script>
+</center>
+</p>
+
+<img src="/plugins/<!--$psubfolder-->/images/icon_256.png">
+
+<script type="text/javascript">
+
+// Animation for the "show more" link
+    $("body").off("click", "#basic_showmore");
+    $("body").on("click", "#basic_showmore",
+        function(){
+            $("#basic_table_advanced").slideToggle("fast");
+        }
+    );
+
+</script> 
+
