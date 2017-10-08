@@ -2,22 +2,20 @@
 
 # Will be executed as user "root".
 
-# Cleanup of squeezelite Plugin
-
-pluginname = $(basename $0 .sh)
-
-if [ -x /usr/bin/logger ]
-then
-    /usr/bin/logger "loxberry-plugin-$pluginname - UNINSTALL Script from LoxBerry Backup Plugin"
-fi
+# Cleanup of lbbackup Plugin
+loxberryhome=REPLACEINSTALLFOLDER
+pluginname=REPLACEFOLDERNAME
 
 # Remove lbbackup from sudoers (need root permission)
-if [! -w /etc/sudoers.d/$pluginname ]
-	then
-		rm -f /etc/sudoers.d/$pluginname
-fi
-
+# First check if plugin really was uninstalled
+if [ ! -e $loxberryhome/data/plugins/$pluginname/raspiBackupInstall.sh ]
+	if [ -x /usr/bin/logger ]; then
+		/usr/bin/logger "loxberry-plugin-$pluginname - UNINSTALL Script from LoxBerry Backup Plugin"
+	fi
+	rm -f /etc/sudoers.d/$pluginname
+	rm -f /usr/local/etc/raspiBackup*.conf*
+	rm -f /usr/local/bin/raspiBackup*.sh*
+	rm -f /usr/local/bin/raspiBackupInstall.sh
+fi 
 # Uninstall raspiBackup.sh
-bash /usr/local/bin/raspiBackupInstall.sh -U
-
 exit 0
