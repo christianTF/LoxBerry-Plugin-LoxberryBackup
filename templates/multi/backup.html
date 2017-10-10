@@ -7,65 +7,35 @@
 <p>Jetzt starten!</p>
 <h2>Zeitplan</h2>
 <form>
-<table style="margin-left: auto; margin-right: auto;">
+<table style="border-color: grey; margin-left: auto; margin-right: auto;" border="1"><caption>&nbsp;</caption>
 <tbody>
 <tr>
 <td>
 <p><strong>Backup-Typ</strong></p>
 </td>
 <td><strong>Zeitplan</strong></td>
+<td><strong>Aufbewahrte Sicherungen</strong></td>
 </tr>
 <tr>
 <td>
 <p>Komprimiertes Image Backup (dd gezippt)</p>
 </td>
-<td>
-	<input type="radio" name="ddcron" id="ddcron_off">
-	<label for="ddcron_off">Aus</label>
-	<input type="radio" name="ddcron" id="ddcron_daily">
-	<label for="ddcron_daily">Täglich</label>
-	<input type="radio" name="ddcron" id="ddcron_weekly">
-	<label for="ddcron_weekly">Wöchentlich</label>
-	<input type="radio" name="ddcron" id="ddcron_monthly">
-	<label for="ddcron_monthly">Monatlich</label>
-	<input type="radio" name="ddcron" id="ddcron_yearly">
-	<label for="ddcron_yearly">Jährlich</label>
-</td>
+<td><input id="ddcron_off" name="ddcron" type="radio" /> <label for="ddcron_off">Aus</label> <input id="ddcron_daily" name="ddcron" type="radio" /> <label for="ddcron_daily">T&auml;glich</label> <input id="ddcron_weekly" name="ddcron" type="radio" /> <label for="ddcron_weekly">W&ouml;chentlich</label> <input id="ddcron_monthly" name="ddcron" type="radio" /> <label for="ddcron_monthly">Monatlich</label> <input id="ddcron_yearly" name="ddcron" type="radio" /> <label for="ddcron_yearly">J&auml;hrlich</label></td>
+<td><input id="ddcron_retention" max="100" min="0" type="number" />&nbsp;Backups</td>
 </tr>
 <tr>
 <td>Dateibasiertes Backup (rsync)</td>
-<td>
-	<input type="radio" name="rsynccron" id="rsynccron_off">
-	<label for="rsynccron_off">Aus</label>
-	<input type="radio" name="rsynccron" id="rsynccron_daily">
-	<label for="rsynccron_daily">Täglich</label>
-	<input type="radio" name="rsynccron" id="rsynccron_weekly">
-	<label for="rsynccron_weekly">Wöchentlich</label>
-	<input type="radio" name="rsynccron" id="rsynccron_monthly">
-	<label for="rsynccron_monthly">Monatlich</label>
-	<input type="radio" name="rsynccron" id="rsynccron_yearly">
-	<label for="rsynccron_yearly">Jährlich</label>
-</td>
+<td><input id="rsynccron_off" name="rsynccron" type="radio" /> <label for="rsynccron_off">Aus</label> <input id="rsynccron_daily" name="rsynccron" type="radio" /> <label for="rsynccron_daily">T&auml;glich</label> <input id="rsynccron_weekly" name="rsynccron" type="radio" /> <label for="rsynccron_weekly">W&ouml;chentlich</label> <input id="rsynccron_monthly" name="rsynccron" type="radio" /> <label for="rsynccron_monthly">Monatlich</label> <input id="rsynccron_yearly" name="rsynccron" type="radio" /> <label for="rsynccron_yearly">J&auml;hrlich</label></td>
+<td><input id="rsynccron_retention" max="100" min="0" type="number" />&nbsp;Backups</td>
 </tr>
 <tr>
 <td>Dateibasiertes, komprimiertes Backup (tgz)</td>
-<td>
-	<input type="radio" name="tgzcron" id="tgzcron_off">
-	<label for="tgzcron_off">Aus</label>
-	<input type="radio" name="tgzcron" id="tgzcron_daily">
-	<label for="tgzcron_daily">Täglich</label>
-	<input type="radio" name="tgzcron" id="tgzcron_weekly">
-	<label for="tgzcron_weekly">Wöchentlich</label>
-	<input type="radio" name="tgzcron" id="tgzcron_monthly">
-	<label for="tgzcron_monthly">Monatlich</label>
-	<input type="radio" name="tgzcron" id="tgzcron_yearly">
-	<label for="tgzcron_yearly">Jährlich</label>
-</td>
+<td><input id="tgzcron_off" name="tgzcron" type="radio" /> <label for="tgzcron_off">Aus</label> <input id="tgzcron_daily" name="tgzcron" type="radio" /> <label for="tgzcron_daily">T&auml;glich</label> <input id="tgzcron_weekly" name="tgzcron" type="radio" /> <label for="tgzcron_weekly">W&ouml;chentlich</label> <input id="tgzcron_monthly" name="tgzcron" type="radio" /> <label for="tgzcron_monthly">Monatlich</label> <input id="tgzcron_yearly" name="tgzcron" type="radio" /> <label for="tgzcron_yearly">J&auml;hrlich</label></td>
+<td><input id="tgzcron_retention" max="100" min="0" type="number" />&nbsp;Backups</td>
 </tr>
 </tbody>
 </table>
 </form>
-
 <script>
   function submitValues() {
     var str = $( "form" ).serialize();
