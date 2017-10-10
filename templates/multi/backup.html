@@ -1,0 +1,77 @@
+<h1>LoxBerry Backup</h1>
+<p>Das Backup-Tool basiert auf <a href="https://www.linux-tips-and-tricks.de/de/raspibackup" target="_blank" rel="noopener">raspiBackup</a>. Dort gibt es detaillierte Infos zu Backup und Restore.</p>
+<p>Das Backup wird automatisch an den Pfad /backup durchgef&uuml;hrt. Mounte deinen externen Datentr&auml;ger oder dein Netzwerklaufwerk an den Pfad /backup.</p>
+<h2>Backup jetzt starten</h2>
+<p>Welchen Backup-Typ m&ouml;chtest du jetzt ausf&uuml;hren?</p>
+<p>Type</p>
+<p>Jetzt starten!</p>
+<h2>Zeitplan</h2>
+<form>
+<table style="margin-left: auto; margin-right: auto;">
+<tbody>
+<tr>
+<td>
+<p><strong>Backup-Typ</strong></p>
+</td>
+<td><strong>Zeitplan</strong></td>
+</tr>
+<tr>
+<td>
+<p>Komprimiertes Image Backup (dd gezippt)</p>
+</td>
+<td>
+	<input type="radio" name="ddcron" id="ddcron_off">
+	<label for="ddcron_off">Aus</label>
+	<input type="radio" name="ddcron" id="ddcron_daily">
+	<label for="ddcron_daily">Täglich</label>
+	<input type="radio" name="ddcron" id="ddcron_weekly">
+	<label for="ddcron_weekly">Wöchentlich</label>
+	<input type="radio" name="ddcron" id="ddcron_monthly">
+	<label for="ddcron_monthly">Monatlich</label>
+	<input type="radio" name="ddcron" id="ddcron_yearly">
+	<label for="ddcron_yearly">Jährlich</label>
+</td>
+</tr>
+<tr>
+<td>Dateibasiertes Backup (rsync)</td>
+<td>
+	<input type="radio" name="rsynccron" id="rsynccron_off">
+	<label for="rsynccron_off">Aus</label>
+	<input type="radio" name="rsynccron" id="rsynccron_daily">
+	<label for="rsynccron_daily">Täglich</label>
+	<input type="radio" name="rsynccron" id="rsynccron_weekly">
+	<label for="rsynccron_weekly">Wöchentlich</label>
+	<input type="radio" name="rsynccron" id="rsynccron_monthly">
+	<label for="rsynccron_monthly">Monatlich</label>
+	<input type="radio" name="rsynccron" id="rsynccron_yearly">
+	<label for="rsynccron_yearly">Jährlich</label>
+</td>
+</tr>
+<tr>
+<td>Dateibasiertes, komprimiertes Backup (tgz)</td>
+<td>
+	<input type="radio" name="tgzcron" id="tgzcron_off">
+	<label for="tgzcron_off">Aus</label>
+	<input type="radio" name="tgzcron" id="tgzcron_daily">
+	<label for="tgzcron_daily">Täglich</label>
+	<input type="radio" name="tgzcron" id="tgzcron_weekly">
+	<label for="tgzcron_weekly">Wöchentlich</label>
+	<input type="radio" name="tgzcron" id="tgzcron_monthly">
+	<label for="tgzcron_monthly">Monatlich</label>
+	<input type="radio" name="tgzcron" id="tgzcron_yearly">
+	<label for="tgzcron_yearly">Jährlich</label>
+</td>
+</tr>
+</tbody>
+</table>
+</form>
+
+<script>
+  function submitValues() {
+    var str = $( "form" ).serialize();
+    // $( "#results" ).text( str );
+  }
+  $( "input[type='checkbox'], input[type='radio']" ).on( "click", submitValues );
+  $( "select" ).on( "change", submitValues );
+  submitValues();
+</script>
