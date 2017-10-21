@@ -57,6 +57,9 @@ my $rsync_retention;
 my $tgz_schedule;
 my $tgz_retention;
 my $stop_services;
+our $errormsg;
+
+our @backuptypes = ('DD', 'RSYNC', 'TGZ');
 
 ##########################################################################
 # Read Settings
@@ -64,16 +67,17 @@ my $stop_services;
 
 # Version of this script
 $version = "0.11";
-
-# print STDERR "Global variables from LoxBerry::System\n";
-# print STDERR "Homedir:     $lbhomedir\n";
-# print STDERR "Plugindir:   $lbplugindir\n";
-# print STDERR "CGIdir:      $lbcgidir\n";
-# print STDERR "HTMLdir:     $lbhtmldir\n";
-# print STDERR "Templatedir: $lbtemplatedir\n";
-# print STDERR "Datadir:     $lbdatadir\n";
-# print STDERR "Logdir:      $lblogdir\n";
-# print STDERR "Configdir:   $lbconfigdir\n";
+ 
+ print STDERR "========== LoxBerry Backup Version $version ==========\n";
+ print STDERR "Global variables from LoxBerry::System\n";
+ print STDERR "Homedir:     $lbhomedir\n";
+ print STDERR "Plugindir:   $lbplugindir\n";
+ print STDERR "CGIdir:      $lbcgidir\n";
+ print STDERR "HTMLdir:     $lbhtmldir\n";
+ print STDERR "Templatedir: $lbtemplatedir\n";
+ print STDERR "Datadir:     $lbdatadir\n";
+ print STDERR "Logdir:      $lblogdir\n";
+ print STDERR "Configdir:   $lbconfigdir\n";
 
 # Start with HTML header
 print $cgi->header(
@@ -107,9 +111,11 @@ my $rsynccron_retention = defined $pcfg->param("RSYNC.RETENTION") ? $pcfg->param
 my $tgzcron_retention = defined $pcfg->param("TGZ.RETENTION") ? $pcfg->param("TGZ.RETENTION") : "3";
 
 my @stop_services_array = $pcfg->param("CONFIG.STOPSERVICES");
-if (defined @stop_services_array) {
+if (@stop_services_array) {
 	$stop_services = join( "\r\n", @stop_services_array);
 }  
+
+my $email_notification = $pcfg->param("CONFIG.EMAIL_NOTIFICATION") ne "" ? $pcfg->param("CONFIG.EMAIL_NOTIFICATION") : "0";
 
 # $pcfg->write();
 
@@ -124,10 +130,10 @@ if ($cgi->param gt 0) {
 }
 
 
-our $postdata = $cgi->param('ddcron');
-print STDERR "POSTDATA:";
-print STDERR Dumper($cgi);
-print STDERR $postdata;
+#our $postdata = $cgi->param('ddcron');
+#print STDERR "POSTDATA:";
+#print STDERR Dumper($cgi);
+#print STDERR $postdata;
 
 
 
@@ -293,6 +299,22 @@ my $tgz_radio_group = radio_group(
 						);
 $maintemplate->param( TGZ_RADIO_GROUP => $tgz_radio_group);
 
+# my $email_notification = popup_menu(-name => 'email_notification',
+									# -values => ['off', 'on'], 
+									# -label => {'off'=>'Off',
+											   # 'on'=>'On'},
+									# -default => 'on',
+									# -attributes => {'email_notification'=>{'data-role'=>'slider'}});
+
+my $email_notification_html = checkbox(-name => 'email_notification',
+								  -checked => $email_notification,
+									-value => 1,
+									-label => 'E-Mail Benachrichtigung',
+								);
+
+									
+$maintemplate->param( EMAIL_NOTIFICATION => $email_notification_html);
+
 $maintemplate->param( STOP_SERVICES => $stop_services);
 						
 
@@ -330,6 +352,8 @@ sub save
 	$rsynccron_retention = $cgi->param('rsynccron_retention');
 	$tgzcron_retention = $cgi->param('tgzcron_retention');
 	
+	$email_notification = defined $cgi->param('email_notification') ? "1" : "0";
+	
 	$stop_services = $cgi->param('stop_services');
 	
 	# Write schedules to config if it appears in the possible schedule list
@@ -337,34 +361,171 @@ sub save
 		
 	if ( $ddcron ~~ @schedules ) {
 		$pcfg->param("DD.SCHEDULE", $ddcron);
-	} 
+	} else {
+		$ddcron = "off";
+		$pcfg->param("DD.SCHEDULE", $ddcron);
+	}
+	
 	if ( $rsynccron ~~ @schedules ) {
+		$pcfg->param("RSYNC.SCHEDULE", $rsynccron);
+	} else {
+		$rsynccron = "off";
 		$pcfg->param("RSYNC.SCHEDULE", $rsynccron);
 	}
 	if ( $tgzcron ~~ @schedules ) {
+		$pcfg->param("TGZ.SCHEDULE", $tgzcron);
+	} else {
+		$tgzcron = "off";
 		$pcfg->param("TGZ.SCHEDULE", $tgzcron);
 	}
 	
 	# Write retentions if it is a number
 	if ( $ddcron_retention =~ /^[0-9,.]+$/ ) {
 		$pcfg->param("DD.RETENTION", $ddcron_retention);
+	} else {
+		$ddcron_retention = 3;
+		$pcfg->param("DD.RETENTION", $ddcron_retention);
 	}
 	if ( $rsynccron_retention =~ /^[0-9,.]+$/ ) {
+		$pcfg->param("RSYNC.RETENTION", $rsynccron_retention);
+	} else {
+		$rsynccron_retention = 3;
 		$pcfg->param("RSYNC.RETENTION", $rsynccron_retention);
 	}
 	if ( $tgzcron_retention =~ /^[0-9,.]+$/ ) {
 		$pcfg->param("TGZ.RETENTION", $tgzcron_retention);
+	} else {
+		$tgzcron_retention = 3;
+		$pcfg->param("TGZ.RETENTION", $tgzcron_retention);
 	}
+	
+	$pcfg->param("CONFIG.EMAIL_NOTIFICATION", $email_notification);
 	
 	# Stop services
 	print STDERR "\nSTOP SERVICES\n";
 	my $stop_services_list = $stop_services;
 	$stop_services_list =~ s/(\r?\n)+/,/g;
-		
-	print STDERR "Stop services: $stop_services\n";
 	$pcfg->param("CONFIG.STOPSERVICES", $stop_services_list);
 		
 	$pcfg->write();
+
+	# Unlink all cron jobs
+	
+	foreach my $currtype (@backuptypes) {
+		print STDERR "Deleting cronjobs for ${lbplugindir}_$currtype\n";
+		unlink ("$lbhomedir/system/cron/cron.daily/${lbplugindir}_$currtype");
+		unlink ("$lbhomedir/system/cron/cron.weekly/${lbplugindir}_$currtype");
+		unlink ("$lbhomedir/system/cron/cron.monthly/${lbplugindir}_$currtype");
+		unlink ("$lbhomedir/system/cron/cron.yearly/${lbplugindir}_$currtype");
+	}
+	
+	### Create new cronjobs
+	# Create start/stop options for services
+	my $par_stopservices;
+	my $par_startservices;
+	my @stop_services_array = $pcfg->param("CONFIG.STOPSERVICES");
+	# Remove empty elements
+	@stop_services_array = grep /\S/, @stop_services_array;
+	
+	foreach my $service (@stop_services_array) {
+		$service = trim($service);
+		if ($service ne "") {
+			$par_stopservices .= "service $service stop &&";
+			$par_startservices .= "service $service start &&";
+		}
+	}
+	# Remove trailing &&'s, or write : if empty
+	$par_stopservices = $par_stopservices ne "" ? substr ($par_stopservices, 0, -3) : ":";
+	$par_startservices = $par_startservices ne "" ? substr ($par_startservices, 0, -3) : ":";
+	
+	my $mail_params = "";
+	if ($email_notification eq "1") {
+		print STDERR "Mail Notification is enabled.\n";
+		my $mailadr;
+		my $mailcfg = new Config::Simple("$lbhomedir/config/system/mail.cfg");
+		unless($mailadr = $mailcfg->param("SMTP.EMAIL"))
+		{ 		
+		print STDERR "Error reading mail configuration in $lbhomedir/config/system/mail.cfg\n";
+		$mailadr = undef;
+		}
+		print STDERR ($mailadr ne "" ? "Mail Address is $mailadr\n" : "Mail notification disabled\n");
+		$mail_params = $mailadr ne "" ? "-e $mailadr " : "";
+	}	
+	
+	# DD
+	my $dd_backup_command = 
+		"sudo raspiBackup.sh " .
+		"-o \"$par_stopservices\" " .
+		"-a \"$par_startservices\" " .
+		$mail_params .
+		"-k $ddcron_retention " .
+		"-t ddz " .
+		"-L current " .
+		"/backup\n";
+	print STDERR "DD backup command: " . $dd_backup_command;
+		
+	# TGZ
+	my $tgz_backup_command = 
+		"sudo raspiBackup.sh " .
+		"-o \"$par_stopservices\" " .
+		"-a \"$par_startservices\" " .
+		$mail_params .
+		"-k $tgzcron_retention " .
+		"-t tgz " .
+		"-L current " .
+		"/backup\n";
+	print STDERR "TGZ backup command: " . $tgz_backup_command;
+	
+	# rsync
+	my $rsync_backup_command = 
+		"sudo raspiBackup.sh " .
+		"-o \"$par_stopservices\" " .
+		"-a \"$par_startservices\" " .
+		$mail_params .
+		"-k $rsynccron_retention " .
+		"-t rsync " .
+		"-L current " .
+		"/backup\n";
+	print STDERR "RSYNC backup command: " . $rsync_backup_command;
+	
+	if ($ddcron ne "off") {
+		my $filename = "$lbhomedir/system/cron/cron.$ddcron/${lbplugindir}_DD";
+		unless(open FILE, '>'.$filename) {
+			$errormsg = "Cron job for DD backup - Cannot create file $filename";
+			print STDERR "$errormsg\n";
+		}
+		print FILE "#!/bin/bash\n";
+		print FILE "cd $lblogdir\n";
+		print FILE $dd_backup_command;
+		close FILE;
+		chmod 0775, $filename;
+	}
+		
+	if ($tgzcron ne "off") {
+		my $filename = "$lbhomedir/system/cron/cron.$tgzcron/${lbplugindir}_TGZ";
+		unless(open FILE, '>'.$filename) {
+			$errormsg = "Cron job for TGZ backup - Cannot create file $filename";
+			print STDERR "$errormsg\n";
+		}
+		print FILE "#!/bin/bash\n";
+		print FILE "cd $lblogdir\n";
+		print FILE $tgz_backup_command;
+		close FILE;
+		chmod 0775, $filename;
+	}
+	
+	if ($rsynccron ne "off") {
+		my $filename = "$lbhomedir/system/cron/cron.$rsynccron/${lbplugindir}_RSYNC";
+		unless(open FILE, '>'.$filename) {
+			$errormsg = "Cron job for RSYNC backup - Cannot create file $filename";
+			print STDERR "$errormsg\n";
+		}
+		print FILE "#!/bin/bash\n";
+		print FILE "cd $lblogdir\n";
+		print FILE $rsync_backup_command;
+		close FILE;
+		chmod 0775, $filename;
+	}
 	
 }
 

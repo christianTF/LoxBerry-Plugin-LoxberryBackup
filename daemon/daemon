@@ -35,14 +35,14 @@ fi
 
 # Add LBBackup to sudoers (need root permission)
 # Sudoers
-sudoversion=1
+sudoversion=2
 
 if [ ! -e $loxberryhome/config/plugins/$pluginname/sudoers.v$sudoversion ]; then
 	if [ -x /usr/bin/logger ]; then 
 		/usr/bin/logger "loxberry-plugin-$pluginname - Adding sudoers permissions"
 	fi
 	echo %loxberry ALL = NOPASSWD: /usr/local/bin/raspiBackup.sh > /etc/sudoers.d/$pluginname
-	echo %loxberry ALL = NOPASSWD: /usr/local/bin/raspiBackupInstall.sh > /etc/sudoers.d/$pluginname
+	echo %loxberry ALL = NOPASSWD: /usr/local/bin/raspiBackupInstall.sh >> /etc/sudoers.d/$pluginname
 	chmod 0440 /etc/sudoers.d/$pluginname
 	rm $loxberryhome/config/plugins/$pluginname/sudoers.*
 	echo Sudoers V$sudoversion > $loxberryhome/config/plugins/$pluginname/sudoers.v$sudoversion
