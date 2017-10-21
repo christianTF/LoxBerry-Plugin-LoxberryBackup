@@ -51,15 +51,15 @@ my  $maintemplate;
 # Version of this script
 $version = "0.11";
 
-print STDERR "Global variables from LoxBerry::System\n";
-print STDERR "Homedir:     $lbhomedir\n";
-print STDERR "Plugindir:   $lbplugindir\n";
-print STDERR "CGIdir:      $lbcgidir\n";
-print STDERR "HTMLdir:     $lbhtmldir\n";
-print STDERR "Templatedir: $lbtemplatedir\n";
-print STDERR "Datadir:     $lbdatadir\n";
-print STDERR "Logdir:      $lblogdir\n";
-print STDERR "Configdir:   $lbconfigdir\n";
+# print STDERR "Global variables from LoxBerry::System\n";
+# print STDERR "Homedir:     $lbhomedir\n";
+# print STDERR "Plugindir:   $lbplugindir\n";
+# print STDERR "CGIdir:      $lbcgidir\n";
+# print STDERR "HTMLdir:     $lbhtmldir\n";
+# print STDERR "Templatedir: $lbtemplatedir\n";
+# print STDERR "Datadir:     $lbdatadir\n";
+# print STDERR "Logdir:      $lblogdir\n";
+# print STDERR "Configdir:   $lbconfigdir\n";
 
 # Start with HTML header
 print $cgi->header(
@@ -73,6 +73,20 @@ $lang = lblanguage();
 # Read plugin config
 $plugin_cfg 	= new Config::Simple("$lbconfigdir/lbbackup.cfg");
 # $pname          = $plugin_cfg->param("MAIN.SCRIPTNAME");
+
+
+##########################################################################
+# Process form data
+##########################################################################
+
+my $postdata = $cgi->param('POSTDATA');
+print STDERR "POSTDATA:";
+print STDERR $postdata;
+
+
+
+
+
 
 ##########################################################################
 # Initialize html templates
