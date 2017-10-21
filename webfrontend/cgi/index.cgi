@@ -21,6 +21,7 @@ use lib "$FindBin::Bin/./perllib";
 use LoxBerry::System;
 use LoxBerry::Web;
 
+use Switch;
 use CGI::Carp qw(fatalsToBrowser);
 use CGI qw/:standard/;
 use Config::Simple;
@@ -31,18 +32,31 @@ use warnings;
 use strict;
 no strict "refs"; # we need it for template system and for contructs like ${"skalar".$i} in loops
 
+# For debug purposes
+use Data::Dumper;
+
+
 ##########################################################################
 # Variables
 ##########################################################################
-my  $cgi = new CGI;
-my  $plugin_cfg;
+our  $cgi = CGI->new;
+my  $pcfg;
 my  $lang;
 my  $languagefile;
 my  $version;
 my  $pname;
 my  $languagefileplugin;
 my  %TPhrases;
-my  $maintemplate;
+my $maintemplate;
+my $footertemplate;
+
+my $dd_schedule;
+my $dd_retention;
+my $rsync_schedule;
+my $rsync_retention;
+my $tgz_schedule;
+my $tgz_retention;
+my $stop_services;
 
 ##########################################################################
 # Read Settings
@@ -63,26 +77,57 @@ $version = "0.11";
 
 # Start with HTML header
 print $cgi->header(
-        type    =>      'text/html',
-        charset =>      'utf-8',
+         -type    =>      'text/html',
+         -charset =>      'utf-8'
 );
 
 # Get language from GET, POST or System setting (from LoxBerry::Web)
 $lang = lblanguage();
 
-# Read plugin config
-$plugin_cfg 	= new Config::Simple("$lbconfigdir/lbbackup.cfg");
-# $pname          = $plugin_cfg->param("MAIN.SCRIPTNAME");
+##########################################################################
+# Read and process config
+##########################################################################
+
+# Read plugin config 
+$pcfg 	= new Config::Simple("$lbconfigdir/lbbackup.cfg");
+if (! defined $pcfg) {
+	$pcfg = new Config::Simple(syntax=>'ini');
+	$pcfg->param("CONFIG.VERSION", $version);
+	$pcfg->write("$lbconfigdir/lbbackup.cfg");
+	$pcfg = new Config::Simple("$lbconfigdir/lbbackup.cfg");
+}
+# Set default parameters
+
+my $ddcron = defined $pcfg->param("DD.SCHEDULE") ? $pcfg->param("DD.SCHEDULE") : "off";
+my $rsynccron = defined $pcfg->param("RSYNC.SCHEDULE") ? $pcfg->param("RSYNC.SCHEDULE") : "off";
+my $tgzcron = defined $pcfg->param("TGZ.SCHEDULE") ? $pcfg->param("TGZ.SCHEDULE") : "off";
+
+my $ddcron_retention = defined $pcfg->param("DD.RETENTION") ? $pcfg->param("DD.RETENTION") : "3";
+my $rsynccron_retention = defined $pcfg->param("RSYNC.RETENTION") ? $pcfg->param("RSYNC.RETENTION") : "3";
+my $tgzcron_retention = defined $pcfg->param("TGZ.RETENTION") ? $pcfg->param("TGZ.RETENTION") : "3";
+
+my @stop_services_array = $pcfg->param("CONFIG.STOPSERVICES");
+if (defined @stop_services_array) {
+	$stop_services = join( "\r\n", @stop_services_array);
+}  
+
+# $pcfg->write();
 
 
 ##########################################################################
 # Process form data
 ##########################################################################
 
-my $postdata = $cgi->param('POSTDATA');
-print STDERR "POSTDATA:";
-print STDERR $postdata;
+if ($cgi->param gt 0) {
+	# Data were posted - save 
+	&save;
+}
 
+
+our $postdata = $cgi->param('ddcron');
+print STDERR "POSTDATA:";
+print STDERR Dumper($cgi);
+print STDERR $postdata;
 
 
 
@@ -104,20 +149,20 @@ print STDERR $postdata;
 # Main
 #$maintemplate = HTML::Template->new(filename => "$lbtemplatedir/multi/main.html");
 $maintemplate = HTML::Template->new(
-	filename => "$lbtemplatedir/multi/main.html",
+	filename => "$lbtemplatedir/multi/backup.html",
 	global_vars => 1,
 	loop_context_vars => 1,
 	die_on_bad_params => 0,
-	associate => $cgi,
+	associate => $pcfg,
 );
 
 
 # Footer # At the moment not in HTML::Template format
-#$footertemplate = HTML::Template->new(
-#	filename => "$lbhomedir/templates/system/$lang/footer.html",
-#	die_on_bad_params => 0,
-#	associate => $cgi,
-#);
+# $footertemplate = HTML::Template->new(
+	# filename => "$lbhomedir/templates/system/$lang/footer.html",
+	# die_on_bad_params => 0,
+	# associate => $cgi,
+# );
 
 
 
@@ -172,27 +217,27 @@ while (my ($name, $value) = each %TPhrases){
 # Create an array with the sections we would like to read. These
 # Sections exist in the plugin config file.
 # See https://wiki.selfhtml.org/wiki/Perl/Listen_bzw._Arrays
-my @sections = ("SECTION1","SECTION2","SECTION3");
+my @sections = ("DDCRON","TGZCRON");
 
 # Now we put the options from the 3 sections into a (new) hash (we check if
 # they exist at first). This newly created hash will be referenced in an array.
 # Perl only allows referenced hashes in arrays, so we are not allowed to
 # overwrite the single hashes!
-my $i = 0;
-my @array;
-foreach (@sections) {
-        if ( $plugin_cfg->param("$_.NAME") ) {
-                %{"hash".$i} = ( # Create a new hash each time, e.g. %hash1, %hash2 etc.
-                OPTION_NAME	=>	$plugin_cfg->param("$_.NAME"),
-                ID		=>	$plugin_cfg->param("$_.ID"),
-                );
-                push (@array, \%{"hash".$i}); 	# Attach a reference to the newly created
-						# hash to the array
-                $i++;
-	}	
-}
+# my $i = 0;
+# my @array;
+# foreach (@sections) {
+        # #if ( $plugin_cfg->param("$_.NAME") ) {
+                # %{"hash".$i} = ( # Create a new hash each time, e.g. %hash1, %hash2 etc.
+                # OPTION_NAME	=>	%TPhrases{$_}{Name},
+                # ID		=>	$plugin_cfg->param("$_.ID"),
+                # );
+                # push (@array, \%{"hash".$i}); 	# Attach a reference to the newly created
+						# # hash to the array
+                # $i++;
+		# #}	
+# }
 # Let the Loop with name "SECTIONS" be available in the template
-$maintemplate->param( SECTIONS => \@array );
+# $maintemplate->param( SECTIONS => \@array );
 
 # This was complicated? Yes, it is because you have to understand hashes and arrays in Perl.
 # We can do the very same if we mix code and style here. It's not as "clean", but it is
@@ -200,15 +245,15 @@ $maintemplate->param( SECTIONS => \@array );
 
 # Again we read the options from the 3 sections from our config file. But we now will create
 # the select list for the form right here - not as before in the template.
-my $selectlist;
-foreach (@sections) {
-        if ( $plugin_cfg->param("$_.NAME") ) {
-		# This appends a new option line to $selectlist
-		$selectlist .= "<option value='".$plugin_cfg->param("$_.ID")."'>".$plugin_cfg->param("$_.NAME")."</option>\n";
-	}
-}
+# my $selectlist;
+# foreach (@sections) {
+        # if ( $plugin_cfg->param("$_.NAME") ) {
+		# # This appends a new option line to $selectlist
+		# $selectlist .= "<option value='".$plugin_cfg->param("$_.ID")."'>".$plugin_cfg->param("$_.NAME")."</option>\n";
+	# }
+# }
 # Let the Var $selectlist with the name SELECTLIST be available in the template
-$maintemplate->param( SELECTLIST => $selectlist );
+# $maintemplate->param( SELECTLIST => $selectlist );
 
 ###
 # As an example: we create some vars for the template
@@ -216,6 +261,40 @@ $maintemplate->param( SELECTLIST => $selectlist );
 $maintemplate->param( PLUGINNAME => $pname );
 $maintemplate->param( ANOTHERNAME => "This is another Name" );
 
+my %labels = ( 
+	'off' => 'Aus',
+	'daily' => 'Taeglich',
+	'weekly' => 'Woechentlich',
+	'monthly' => 'Monatlich',
+	'yearly' => 'Jaehrlich',
+);
+
+my $dd_radio_group = radio_group(
+						-name => 'ddcron',
+						-values => ['off', 'daily', 'weekly', 'monthly', 'yearly'],
+						-labels => \%labels,
+						-default => $ddcron ,
+						);
+$maintemplate->param( DD_RADIO_GROUP => $dd_radio_group);
+
+my $rsync_radio_group = radio_group(
+						-name => 'rsynccron',
+						-values => ['off', 'daily', 'weekly', 'monthly', 'yearly'],
+						-labels => \%labels,
+						-default => $rsynccron ,
+						);
+$maintemplate->param( RSYNC_RADIO_GROUP => $rsync_radio_group);
+
+my $tgz_radio_group = radio_group(
+						-name => 'tgzcron',
+						-values => ['off', 'daily', 'weekly', 'monthly', 'yearly'],
+						-labels => \%labels,
+						-default => $tgzcron ,
+						);
+$maintemplate->param( TGZ_RADIO_GROUP => $tgz_radio_group);
+
+$maintemplate->param( STOP_SERVICES => $stop_services);
+						
 
 ##########################################################################
 # Print Template
@@ -237,3 +316,56 @@ print $maintemplate->output;
 LoxBerry::Web::lbfooter();
 
 exit;
+
+##########################################################################
+# Save data
+##########################################################################
+sub save 
+{
+	$ddcron = $cgi->param('ddcron');
+	$rsynccron = $cgi->param('rsynccron');
+	$tgzcron = $cgi->param('tgzcron');
+	
+	$ddcron_retention = $cgi->param('ddcron_retention');
+	$rsynccron_retention = $cgi->param('rsynccron_retention');
+	$tgzcron_retention = $cgi->param('tgzcron_retention');
+	
+	$stop_services = $cgi->param('stop_services');
+	
+	# Write schedules to config if it appears in the possible schedule list
+	my @schedules = qw ( off daily weekly monthly yearly );
+		
+	if ( $ddcron ~~ @schedules ) {
+		$pcfg->param("DD.SCHEDULE", $ddcron);
+	} 
+	if ( $rsynccron ~~ @schedules ) {
+		$pcfg->param("RSYNC.SCHEDULE", $rsynccron);
+	}
+	if ( $tgzcron ~~ @schedules ) {
+		$pcfg->param("TGZ.SCHEDULE", $tgzcron);
+	}
+	
+	# Write retentions if it is a number
+	if ( $ddcron_retention =~ /^[0-9,.]+$/ ) {
+		$pcfg->param("DD.RETENTION", $ddcron_retention);
+	}
+	if ( $rsynccron_retention =~ /^[0-9,.]+$/ ) {
+		$pcfg->param("RSYNC.RETENTION", $rsynccron_retention);
+	}
+	if ( $tgzcron_retention =~ /^[0-9,.]+$/ ) {
+		$pcfg->param("TGZ.RETENTION", $tgzcron_retention);
+	}
+	
+	# Stop services
+	print STDERR "\nSTOP SERVICES\n";
+	my $stop_services_list = $stop_services;
+	$stop_services_list =~ s/(\r?\n)+/,/g;
+		
+	print STDERR "Stop services: $stop_services\n";
+	$pcfg->param("CONFIG.STOPSERVICES", $stop_services_list);
+		
+	$pcfg->write();
+	
+}
+
+

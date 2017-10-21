@@ -6,8 +6,8 @@
 <p>Type</p>
 <p>Jetzt starten!</p>
 <h2>Zeitplan</h2>
-<form>
-<table style="border-color: grey; margin-left: auto; margin-right: auto;" border="1"><caption>&nbsp;</caption>
+<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
+<table style="border-color: grey; margin-left: auto; margin-right: auto;" border="1" width="80%"><caption>&nbsp;</caption>
 <tbody>
 <tr>
 <td>
@@ -20,28 +20,41 @@
 <td>
 <p>Komprimiertes Image Backup (dd gezippt)</p>
 </td>
-<td><input id="ddcron_off" name="ddcron" type="radio" /> <label for="ddcron_off">Aus</label> <input id="ddcron_daily" name="ddcron" type="radio" /> <label for="ddcron_daily">T&auml;glich</label> <input id="ddcron_weekly" name="ddcron" type="radio" /> <label for="ddcron_weekly">W&ouml;chentlich</label> <input id="ddcron_monthly" name="ddcron" type="radio" /> <label for="ddcron_monthly">Monatlich</label> <input id="ddcron_yearly" name="ddcron" type="radio" /> <label for="ddcron_yearly">J&auml;hrlich</label></td>
-<td><input id="ddcron_retention" max="100" min="0" type="number" />&nbsp;Backups</td>
+<td>
+<TMPL_VAR NAME=DD_RADIO_GROUP>
+<!-- <input id="ddcron_off" name="ddcron" value="off" type="radio" />  -->
+<!-- <label for="ddcron_off">Aus</label>  -->
+<!-- <input id="ddcron_daily" name="ddcron" value="daily" type="radio" />  -->
+<!-- <label for="ddcron_daily">T&auml;glich</label>  -->
+<!-- <input id="ddcron_weekly" name="ddcron" value="weekly" type="radio" />  -->
+<!-- <label for="ddcron_weekly">W&ouml;chentlich</label>  -->
+<!-- <input id="ddcron_monthly" name="ddcron" value="monthly" type="radio" />  -->
+<!-- <label for="ddcron_monthly">Monatlich</label>  -->
+<!-- <input id="ddcron_yearly" name="ddcron" value="yearly" type="radio" />  -->
+<!-- <label for="ddcron_yearly">J&auml;hrlich</label> -->
+</td>
+<td><input id="ddcron_retention" name="ddcron_retention" max="100" min="0" type="number" value="<TMPL_VAR NAME=DD.RETENTION>" />&nbsp;Backups</td>
 </tr>
 <tr>
 <td>Dateibasiertes Backup (rsync)</td>
-<td><input id="rsynccron_off" name="rsynccron" type="radio" /> <label for="rsynccron_off">Aus</label> <input id="rsynccron_daily" name="rsynccron" type="radio" /> <label for="rsynccron_daily">T&auml;glich</label> <input id="rsynccron_weekly" name="rsynccron" type="radio" /> <label for="rsynccron_weekly">W&ouml;chentlich</label> <input id="rsynccron_monthly" name="rsynccron" type="radio" /> <label for="rsynccron_monthly">Monatlich</label> <input id="rsynccron_yearly" name="rsynccron" type="radio" /> <label for="rsynccron_yearly">J&auml;hrlich</label></td>
-<td><input id="rsynccron_retention" max="100" min="0" type="number" />&nbsp;Backups</td>
+<td>
+<TMPL_VAR NAME=RSYNC_RADIO_GROUP>
+<!-- <input id="rsynccron_off" name="rsynccron" type="radio" /> <label for="rsynccron_off">Aus</label> <input id="rsynccron_daily" name="rsynccron" type="radio" /> <label for="rsynccron_daily">T&auml;glich</label> <input id="rsynccron_weekly" name="rsynccron" type="radio" /> <label for="rsynccron_weekly">W&ouml;chentlich</label> <input id="rsynccron_monthly" name="rsynccron" type="radio" /> <label for="rsynccron_monthly">Monatlich</label> <input id="rsynccron_yearly" name="rsynccron" type="radio" /> <label for="rsynccron_yearly">J&auml;hrlich</label> -->
+</td>
+<td><input id="rsynccron_retention" name="rsynccron_retention" max="100" min="0" type="number" value="<TMPL_VAR NAME=RSYNC.RETENTION>" />&nbsp;Backups</td>
 </tr>
 <tr>
 <td>Dateibasiertes, komprimiertes Backup (tgz)</td>
-<td><input id="tgzcron_off" name="tgzcron" type="radio" /> <label for="tgzcron_off">Aus</label> <input id="tgzcron_daily" name="tgzcron" type="radio" /> <label for="tgzcron_daily">T&auml;glich</label> <input id="tgzcron_weekly" name="tgzcron" type="radio" /> <label for="tgzcron_weekly">W&ouml;chentlich</label> <input id="tgzcron_monthly" name="tgzcron" type="radio" /> <label for="tgzcron_monthly">Monatlich</label> <input id="tgzcron_yearly" name="tgzcron" type="radio" /> <label for="tgzcron_yearly">J&auml;hrlich</label></td>
-<td><input id="tgzcron_retention" max="100" min="0" type="number" />&nbsp;Backups</td>
+<td>
+<TMPL_VAR NAME=TGZ_RADIO_GROUP>
+<!-- <input id="tgzcron_off" name="tgzcron" type="radio" /> <label for="tgzcron_off">Aus</label> <input id="tgzcron_daily" name="tgzcron" type="radio" /> <label for="tgzcron_daily">T&auml;glich</label> <input id="tgzcron_weekly" name="tgzcron" type="radio" /> <label for="tgzcron_weekly">W&ouml;chentlich</label> <input id="tgzcron_monthly" name="tgzcron" type="radio" /> <label for="tgzcron_monthly">Monatlich</label> <input id="tgzcron_yearly" name="tgzcron" type="radio" /> <label for="tgzcron_yearly">J&auml;hrlich</label> -->
+</td>
+<td><input id="tgzcron_retention" name="tgzcron_retention" max="100" min="0" type="number" value="<TMPL_VAR NAME=TGZ.RETENTION>" />&nbsp;Backups</td>
 </tr>
 </tbody>
 </table>
+<br />
+Während des Backups werden folgende Dienste beendet, um die Konstenz sicherzustellen:
+<textarea name="stop_services" id="stop_services"><TMPL_VAR NAME=STOP_SERVICES></textarea>
+<input type="submit" value="Submit">
 </form>
-<script>
-  function submitValues() {
-    var str = $( "form" ).serialize();
-    // $( "#results" ).text( str );
-  }
-  $( "input[type='checkbox'], input[type='radio']" ).on( "click", submitValues );
-  $( "select" ).on( "change", submitValues );
-  submitValues();
-</script>
