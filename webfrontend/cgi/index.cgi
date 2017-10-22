@@ -124,6 +124,7 @@ if (@stop_services_array) {
 }  
 
 my $email_notification = $pcfg->param("CONFIG.EMAIL_NOTIFICATION") ne "" ? $pcfg->param("CONFIG.EMAIL_NOTIFICATION") : "0";
+my $fake_backup = is_enabled($pcfg->param("CONFIG.FAKE_BACKUP"));
 
 # $pcfg->write();
 
@@ -261,10 +262,15 @@ my $email_notification_html = checkbox(-name => 'email_notification',
 									-value => 1,
 									-label => 'E-Mail Benachrichtigung',
 								);
-
-									
 $maintemplate->param( EMAIL_NOTIFICATION => $email_notification_html);
 
+my $fake_backup_html = checkbox(-name => 'fake_backup',
+  -checked => $fake_backup,
+	-value => 1,
+	-label => 'FAKE Backup',
+);
+$maintemplate->param( FAKE_BACKUP => $fake_backup_html);
+									
 $maintemplate->param( STOP_SERVICES => $stop_services);
 						
 $maintemplate->param( CHECKPIDURL => "./grep_raspibackup.cgi");
@@ -310,6 +316,8 @@ sub save
 	
 	$stop_services = $cgi->param('stop_services');
 	
+	$fake_backup = defined $cgi->param('fake_backup') ? "1" : "0";
+	
 	# Write schedules to config if it appears in the possible schedule list
 	my @schedules = qw ( off daily weekly monthly yearly );
 		
@@ -354,6 +362,8 @@ sub save
 	}
 	
 	$pcfg->param("CONFIG.EMAIL_NOTIFICATION", $email_notification);
+	$pcfg->param("CONFIG.FAKE_BACKUP", $fake_backup);
+	
 	
 	# Stop services
 	print STDERR "\nSTOP SERVICES\n";
@@ -530,10 +540,15 @@ sub email_params
 # -----------------------------------------------------------
 sub get_raspibackup_command
 {
-
+    my $fake_backup_params;
+	if (is_enabled($fake_backup)) { 
+		print STDERR "FAKE Backup is enabled.\n";
+		$fake_backup_params = "-F ";
+	}
 	# DD
 	$dd_backup_command = 
 		"sudo raspiBackup.sh " .
+		$fake_backup_params . 
 		"-o \"$par_stopservices\" " .
 		"-a \"$par_startservices\" " .
 		$mail_params .
@@ -546,6 +561,7 @@ sub get_raspibackup_command
 	# TGZ
 	$tgz_backup_command = 
 		"sudo raspiBackup.sh " .
+		$fake_backup_params . 
 		"-o \"$par_stopservices\" " .
 		"-a \"$par_startservices\" " .
 		$mail_params .
@@ -558,6 +574,7 @@ sub get_raspibackup_command
 	# rsync
 	$rsync_backup_command = 
 		"sudo raspiBackup.sh " .
+		$fake_backup_params . 
 		"-o \"$par_stopservices\" " .
 		"-a \"$par_startservices\" " .
 		$mail_params .
