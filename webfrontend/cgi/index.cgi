@@ -233,6 +233,8 @@ my %labels = (
 	'yearly' => 'Jaehrlich',
 );
 
+#my %label_attributes = ('off'=>{'class'=>'
+
 my $dd_radio_group = radio_group(
 						-name => 'ddcron',
 						-values => ['off', 'daily', 'weekly', 'monthly', 'yearly'],
@@ -255,6 +257,20 @@ my $tgz_radio_group = radio_group(
 						-labels => \%labels,
 						-default => $tgzcron ,
 						);
+
+# my $tgz_radio_group = popup_menu(
+						# -name => 'tgzcron',
+						# -values => optgroup(-name => 'tgzcronoptgroup',
+											 # -values=>['off', 'daily', 'weekly', 'monthly', 'yearly'],
+											 # #-labels => \%labels
+									# ),		 
+						
+						# -default => $tgzcron ,
+						# );
+
+						
+						
+						
 $maintemplate->param( TGZ_RADIO_GROUP => $tgz_radio_group);
 
 my $email_notification_html = checkbox(-name => 'email_notification',
