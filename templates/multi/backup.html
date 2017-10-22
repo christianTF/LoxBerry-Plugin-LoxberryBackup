@@ -1,10 +1,31 @@
-<h1>LoxBerry Backup</h1>
+<center>
 <p>Das Backup-Tool basiert auf <a href="https://www.linux-tips-and-tricks.de/de/raspibackup" target="_blank" rel="noopener">raspiBackup</a>. Dort gibt es detaillierte Infos zu Backup und Restore.</p>
-<p>Das Backup wird automatisch an den Pfad /backup durchgef&uuml;hrt. Mounte deinen externen Datentr&auml;ger oder dein Netzwerklaufwerk an den Pfad /backup.</p>
-<h2>Backup jetzt starten</h2>
-<p>Welchen Backup-Typ m&ouml;chtest du jetzt ausf&uuml;hren?</p>
-<p>Type</p>
-<p>Jetzt starten!</p>
+<p>Das Backup wird automatisch an den Pfad <b>/backup</b> durchgef&uuml;hrt. Mounte deinen externen Datentr&auml;ger oder dein Netzwerklaufwerk an den Pfad /backup.</p>
+<form method="post" data-ajax="false" name="cti_form" id="cti_form" action="./index.cgi">
+<table style="border-color: grey; margin-left: auto; margin-right: auto;" border="1" width="80%">
+<tbody>
+<tr>
+<td>
+<fieldset data-role="controlgroup">
+	   	<legend>Backup-Typ auswählen:</legend>
+		<input type="radio" name="jit-backup-type" id="jit-backup-type-1" value="DD" checked="checked" />
+     	<label for="jit-backup-type-1">DD (gezippt)</label>
+     	<input type="radio" name="jit-backup-type" id="jit-backup-type-2" value="TGZ"  />
+     	<label for="jit-backup-type-2">TGZ</label>
+     	<input type="radio" name="jit-backup-type" id="jit-backup-type-3" value="RSYNC"  />
+     	<label for="jit-backup-type-3">RSYNC</label>
+</fieldset>
+</td>
+<td>
+<!-- <a id="btnbackup" data-role="button" data-mini="false" onclick="$('#Logfiletextbox').append('<hr\><div style=\'text-align:center; width:100%; color:#000000; background-color:lightgreen;\'>Log</div><hr\>'); $('#response').html( 'Backup wird gestartet...' ); $('#response').fadeTo( 'fast', 1 ); $.get('./index.cgi?do=backup', function(response) { setTimeout( function(){ $('#response').fadeTo( 'slow', 0 ); }, 5000); setTimeout( function(){ $('#response').html( '&nbsp;' ); }, 6500); $('#response').html(response);});">Backup jetzt starten!</a>-->
+<input type="hidden" name="jit_backup" value="jit_backup">
+<input type="submit" name="jit_submit" id="jit_submit" value="Bereite vor..." disabled >
+</td>
+</tr>
+</tbody>
+</table>
+</form> 
+
 <h2>Zeitplan</h2>
 <form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
 <table style="border-color: grey; margin-left: auto; margin-right: auto;" border="1" width="80%"><caption>&nbsp;</caption>
@@ -23,21 +44,21 @@
 <td>
 <TMPL_VAR NAME=DD_RADIO_GROUP>
 </td>
-<td><input id="ddcron_retention" name="ddcron_retention" max="100" min="0" type="number" value="<TMPL_VAR NAME=DD.RETENTION>" />&nbsp;Backups</td>
+<td><input id="ddcron_retention" name="ddcron_retention" min="0" max="100" type="number" value="<TMPL_VAR NAME=DD.RETENTION>" />&nbsp;Backups</td>
 </tr>
 <tr>
 <td>Dateibasiertes Backup (rsync)</td>
 <td>
 <TMPL_VAR NAME=RSYNC_RADIO_GROUP>
 </td>
-<td><input id="rsynccron_retention" name="rsynccron_retention" max="100" min="0" type="number" value="<TMPL_VAR NAME=RSYNC.RETENTION>" />&nbsp;Backups</td>
+<td><input id="rsynccron_retention" name="rsynccron_retention"  min="0" max="100" type="number" value="<TMPL_VAR NAME=RSYNC.RETENTION>" />&nbsp;Backups</td>
 </tr>
 <tr>
 <td>Dateibasiertes, komprimiertes Backup (tgz)</td>
 <td>
 <TMPL_VAR NAME=TGZ_RADIO_GROUP>
 </td>
-<td><input id="tgzcron_retention" name="tgzcron_retention" max="100" min="0" type="number" value="<TMPL_VAR NAME=TGZ.RETENTION>" />&nbsp;Backups</td>
+<td><input id="tgzcron_retention" name="tgzcron_retention" min="0" max="100" type="number" value="<TMPL_VAR NAME=TGZ.RETENTION>" />&nbsp;Backups</td>
 </tr>
 <tr>
 <td>
@@ -57,9 +78,53 @@ E-Mail Benachrichtigung
 <td>Das Beenden von Diensten stellt die Datenkonsistenz <br>sicher,zum Beispiel bei Datenbankfiles.
 </td>
 </tr>
+<tr>
+<td colspan="3">
+<input type="hidden" name="save" value="save">
+<input type="submit" value="Einstellungen speichern">
+</td>
+</tr>
 </tbody>
 </table>
 <br />
-
-<input type="submit" value="Submit">
 </form>
+
+<!-- <a id="btnlogs" data-role="button" href="/admin/system/tools/logfile.cgi?logfile=plugins/lbbackup/raspiBackup.log&header=html&format=template" target="_blank" data-inline="true" data-mini="true" data-icon="arrow-d">Logdatei &ouml;ffnen</a> -->
+
+
+</center>
+<script>
+
+// Get numbers of raspiBackup PIDs every 5 seconds and update submit button status
+setInterval(function() {
+  // method to be executed;
+getText('<TMPL_VAR NAME=CHECKPIDURL>', mycallback); //passing mycallback as a method  
+}, 5000);
+
+getText = function(url, callback) // How can I use this callback?
+{
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function()
+    {
+        if (request.readyState == 4 && request.status == 200)
+        {
+            callback(request.responseText); // Another callback here
+        }
+    }; 
+    request.open('GET', url);
+    request.send();
+}
+
+function mycallback(data) {
+   // alert(data);
+   if (data != "0\n")
+	{ $("#jit_submit").prop("disabled",true);
+	  $("#jit_submit").val("Backup läuft...").button("refresh");
+	}
+	else {
+	  $("#jit_submit").prop("disabled",false);
+	  $("#jit_submit").val("Backup jetzt starten!").button("refresh");
+	}
+}
+
+</script>

@@ -47,6 +47,7 @@ my  $version;
 my  $pname;
 my  $languagefileplugin;
 my  %TPhrases;
+my $topmenutemplate;
 my $maintemplate;
 my $footertemplate;
 
@@ -57,7 +58,14 @@ my $rsync_retention;
 my $tgz_schedule;
 my $tgz_retention;
 my $stop_services;
+my $par_stopservices;
+my $par_startservices;
+my $mail_params;
 our $errormsg;
+
+my $dd_backup_command;
+my $tgz_backup_command;
+my $rsync_backup_command;
 
 our @backuptypes = ('DD', 'RSYNC', 'TGZ');
 
@@ -67,8 +75,8 @@ our @backuptypes = ('DD', 'RSYNC', 'TGZ');
 
 # Version of this script
 $version = "0.11";
- 
- print STDERR "========== LoxBerry Backup Version $version ==========\n";
+ my $datestring = localtime();
+ print STDERR "========== LoxBerry Backup Version $version === ($datestring) =========\n";
  print STDERR "Global variables from LoxBerry::System\n";
  print STDERR "Homedir:     $lbhomedir\n";
  print STDERR "Plugindir:   $lbplugindir\n";
@@ -124,19 +132,20 @@ my $email_notification = $pcfg->param("CONFIG.EMAIL_NOTIFICATION") ne "" ? $pcfg
 # Process form data
 ##########################################################################
 
-if ($cgi->param gt 0) {
+if ($cgi->param("save")) {
 	# Data were posted - save 
 	&save;
 }
 
+if ($cgi->param("jit_backup")) {
+	# Data were posted - save 
+	&jit_backup;
+}
 
 #our $postdata = $cgi->param('ddcron');
-#print STDERR "POSTDATA:";
-#print STDERR Dumper($cgi);
+print STDERR "POSTDATA:";
+print STDERR Dumper($cgi);
 #print STDERR $postdata;
-
-
-
 
 
 ##########################################################################
@@ -145,12 +154,14 @@ if ($cgi->param gt 0) {
 
 # See http://www.perlmonks.org/?node_id=65642
 
-# Header # At the moment not in HTML::Template format
-#$headertemplate = HTML::Template->new(
-#	filename => "$lbhomedir/templates/system/$lang/header.html",
-#	die_on_bad_params => 0,
-#	associate => $cgi,
-#);
+
+# Topmenu
+$topmenutemplate = HTML::Template->new(
+	filename => "$lbtemplatedir/multi/topmenu.html",
+	global_vars => 1,
+	loop_context_vars => 1,
+	die_on_bad_params => 0,
+);
 
 # Main
 #$maintemplate = HTML::Template->new(filename => "$lbtemplatedir/multi/main.html");
@@ -161,6 +172,9 @@ $maintemplate = HTML::Template->new(
 	die_on_bad_params => 0,
 	associate => $pcfg,
 );
+
+# Activate Backup button in topmenu
+$topmenutemplate->param( CLASS_INDEX => 'class="ui-btn-active ui-state-persist"');
 
 
 # Footer # At the moment not in HTML::Template format
@@ -206,66 +220,9 @@ while (my ($name, $value) = each %TPhrases){
 ##########################################################################
 
 ###
-# As an example: we create a select list for a form in two different ways
-###
-
-# First create a select list for a from - data is taken from the Plugin 
-# Config file. We are using the HTML::Template Loop function. You should
-# be familiar with Hashes and Arrays in Perl.
-#
-# Please see https://metacpan.org/pod/HTML::Template
-# Please see http://www.perlmonks.org/?node_id=65642
-#
-# This is the prefered way, because code and style is seperated. But
-# it is a little bit complicated. If you could not understand this,
-# please see next example.
-
-# Create an array with the sections we would like to read. These
-# Sections exist in the plugin config file.
-# See https://wiki.selfhtml.org/wiki/Perl/Listen_bzw._Arrays
-my @sections = ("DDCRON","TGZCRON");
-
-# Now we put the options from the 3 sections into a (new) hash (we check if
-# they exist at first). This newly created hash will be referenced in an array.
-# Perl only allows referenced hashes in arrays, so we are not allowed to
-# overwrite the single hashes!
-# my $i = 0;
-# my @array;
-# foreach (@sections) {
-        # #if ( $plugin_cfg->param("$_.NAME") ) {
-                # %{"hash".$i} = ( # Create a new hash each time, e.g. %hash1, %hash2 etc.
-                # OPTION_NAME	=>	%TPhrases{$_}{Name},
-                # ID		=>	$plugin_cfg->param("$_.ID"),
-                # );
-                # push (@array, \%{"hash".$i}); 	# Attach a reference to the newly created
-						# # hash to the array
-                # $i++;
-		# #}	
-# }
-# Let the Loop with name "SECTIONS" be available in the template
-# $maintemplate->param( SECTIONS => \@array );
-
-# This was complicated? Yes, it is because you have to understand hashes and arrays in Perl.
-# We can do the very same if we mix code and style here. It's not as "clean", but it is
-# easier to understand.
-
-# Again we read the options from the 3 sections from our config file. But we now will create
-# the select list for the form right here - not as before in the template.
-# my $selectlist;
-# foreach (@sections) {
-        # if ( $plugin_cfg->param("$_.NAME") ) {
-		# # This appends a new option line to $selectlist
-		# $selectlist .= "<option value='".$plugin_cfg->param("$_.ID")."'>".$plugin_cfg->param("$_.NAME")."</option>\n";
-	# }
-# }
-# Let the Var $selectlist with the name SELECTLIST be available in the template
-# $maintemplate->param( SELECTLIST => $selectlist );
-
-###
 # As an example: we create some vars for the template
 ###
-$maintemplate->param( PLUGINNAME => $pname );
-$maintemplate->param( ANOTHERNAME => "This is another Name" );
+$maintemplate->param( PLUGINNAME => 'LoxBerry Backup' );
 
 my %labels = ( 
 	'off' => 'Aus',
@@ -299,13 +256,6 @@ my $tgz_radio_group = radio_group(
 						);
 $maintemplate->param( TGZ_RADIO_GROUP => $tgz_radio_group);
 
-# my $email_notification = popup_menu(-name => 'email_notification',
-									# -values => ['off', 'on'], 
-									# -label => {'off'=>'Off',
-											   # 'on'=>'On'},
-									# -default => 'on',
-									# -attributes => {'email_notification'=>{'data-role'=>'slider'}});
-
 my $email_notification_html = checkbox(-name => 'email_notification',
 								  -checked => $email_notification,
 									-value => 1,
@@ -317,7 +267,8 @@ $maintemplate->param( EMAIL_NOTIFICATION => $email_notification_html);
 
 $maintemplate->param( STOP_SERVICES => $stop_services);
 						
-
+$maintemplate->param( CHECKPIDURL => "./grep_raspibackup.cgi");
+						
 ##########################################################################
 # Print Template
 ##########################################################################
@@ -326,7 +277,10 @@ $maintemplate->param( STOP_SERVICES => $stop_services);
 #print $headertemplate->output;
 
 # In LoxBerry V0.2.x we use the old LoxBerry::Web header
-LoxBerry::Web::lbheader("Sample Plugin V2", "https://www.loxforum.com/forum/projektforen/loxberry/entwickler/84645-best-practise-perl-programmierung-im-loxberry");
+LoxBerry::Web::lbheader("LoxBerry Backup", "http://www.loxwiki.eu:80/x/14U_AQ");
+
+# Topmenu
+print $topmenutemplate->output;
 
 # Main
 print $maintemplate->output;
@@ -421,8 +375,6 @@ sub save
 	
 	### Create new cronjobs
 	# Create start/stop options for services
-	my $par_stopservices;
-	my $par_startservices;
 	my @stop_services_array = $pcfg->param("CONFIG.STOPSERVICES");
 	# Remove empty elements
 	@stop_services_array = grep /\S/, @stop_services_array;
@@ -438,56 +390,10 @@ sub save
 	$par_stopservices = $par_stopservices ne "" ? substr ($par_stopservices, 0, -3) : ":";
 	$par_startservices = $par_startservices ne "" ? substr ($par_startservices, 0, -3) : ":";
 	
-	my $mail_params = "";
-	if ($email_notification eq "1") {
-		print STDERR "Mail Notification is enabled.\n";
-		my $mailadr;
-		my $mailcfg = new Config::Simple("$lbhomedir/config/system/mail.cfg");
-		unless($mailadr = $mailcfg->param("SMTP.EMAIL"))
-		{ 		
-		print STDERR "Error reading mail configuration in $lbhomedir/config/system/mail.cfg\n";
-		$mailadr = undef;
-		}
-		print STDERR ($mailadr ne "" ? "Mail Address is $mailadr\n" : "Mail notification disabled\n");
-		$mail_params = $mailadr ne "" ? "-e $mailadr " : "";
-	}	
+	$mail_params = email_params();
 	
-	# DD
-	my $dd_backup_command = 
-		"sudo raspiBackup.sh " .
-		"-o \"$par_stopservices\" " .
-		"-a \"$par_startservices\" " .
-		$mail_params .
-		"-k $ddcron_retention " .
-		"-t ddz " .
-		"-L current " .
-		"/backup\n";
-	print STDERR "DD backup command: " . $dd_backup_command;
-		
-	# TGZ
-	my $tgz_backup_command = 
-		"sudo raspiBackup.sh " .
-		"-o \"$par_stopservices\" " .
-		"-a \"$par_startservices\" " .
-		$mail_params .
-		"-k $tgzcron_retention " .
-		"-t tgz " .
-		"-L current " .
-		"/backup\n";
-	print STDERR "TGZ backup command: " . $tgz_backup_command;
-	
-	# rsync
-	my $rsync_backup_command = 
-		"sudo raspiBackup.sh " .
-		"-o \"$par_stopservices\" " .
-		"-a \"$par_startservices\" " .
-		$mail_params .
-		"-k $rsynccron_retention " .
-		"-t rsync " .
-		"-L current " .
-		"/backup\n";
-	print STDERR "RSYNC backup command: " . $rsync_backup_command;
-	
+	get_raspibackup_command();
+
 	if ($ddcron ne "off") {
 		my $filename = "$lbhomedir/system/cron/cron.$ddcron/${lbplugindir}_DD";
 		unless(open FILE, '>'.$filename) {
@@ -528,5 +434,140 @@ sub save
 	}
 	
 }
+##########################################################################
+# Just-In-Time Backup
+##########################################################################
+sub jit_backup
+{
+	my $datestring = localtime();
+	print STDERR "==== JIT-Backup started! == ($datestring) ==\n";
+	
+	my $backuptype = $cgi->param('jit-backup-type');
+	
+	## Email notification
+	my $email_notification = defined $pcfg->param('email_notification') ? "1" : "0";
+	my $email_params = email_params();
+
+	## Create start/stop options for services
+	my @stop_services_array = $pcfg->param("CONFIG.STOPSERVICES");
+	# Remove empty elements
+	@stop_services_array = grep /\S/, @stop_services_array;
+	foreach my $service (@stop_services_array) {
+		$service = trim($service);
+		if ($service ne "") {
+			$par_stopservices .= "service $service stop &&";
+			$par_startservices .= "service $service start &&";
+		}
+	}
+	# Remove trailing &&'s, or write : if empty
+	$par_stopservices = $par_stopservices ne "" ? substr ($par_stopservices, 0, -3) : ":";
+	$par_startservices = $par_startservices ne "" ? substr ($par_startservices, 0, -3) : ":";
+
+	## Get the highest retention number
+	my $jit_retention;
+	$jit_retention = $ddcron_retention > $rsynccron_retention ? $ddcron_retention : $rsynccron_retention;
+	$jit_retention = $jit_retention > $tgzcron_retention ? $jit_retention : $tgzcron_retention;
+	print STDERR "JIT Retention number (max) was identified as $jit_retention.\n";
+
+	get_raspibackup_command();
+	
+	my $filename = "$lbdatadir/jit_backup";
+	unless(open FILE, '>'.$filename) {
+		$errormsg = "Cron job for $backuptype backup - Cannot create file $filename";
+		print STDERR "$errormsg\n";
+	}
+	print FILE "#!/bin/bash\n";
+	print FILE "cd $lblogdir\n";
+	if ($backuptype eq "DD") { print FILE $dd_backup_command; }
+	elsif ($backuptype eq "TGZ") { print FILE $tgz_backup_command; }
+	elsif ($backuptype eq "RSYNC") { print FILE $rsync_backup_command; }
+	close FILE;
+	chmod 0775, $filename;
+	
+	my $pid = fork();
+	die "Fork failed: $!" if !defined $pid;
+	if ($pid == 0) {
+			 # do this in the child
+			 print STDERR "---> Backup process forked.\n";
+			 open STDIN, "</dev/null";
+			 open STDOUT, ">/dev/null";
+			 open STDERR, ">/dev/null";
+			 if (system("$filename &") == 0) {
+			 print STDERR "---> Backup command started.";
+			 } else {
+			 print STDERR "---> Backup command returned ERROR.";
+			 };
+	}
+	return;
+}
+
+# -----------------------------------------------------------
+# Generate E-Mail Options
+# -----------------------------------------------------------
+sub email_params
+{
+	my $mailadr = "";
+	my $mail_params = "";
+	
+	print STDERR "Checking E-Mail notification...";
+	if ($email_notification eq "1") {
+			print STDERR "Mail Notification is enabled.\n";
+			my $mailcfg = new Config::Simple("$lbhomedir/config/system/mail.cfg");
+			unless($mailadr = $mailcfg->param("SMTP.EMAIL"))
+			{ 		
+			print STDERR "Error reading mail configuration in $lbhomedir/config/system/mail.cfg\n";
+			$mailadr = undef;
+			}
+			print STDERR ($mailadr ne "" ? "Mail Address is $mailadr\n" : "Mail notification disabled\n");
+	}
+	$mail_params = $mailadr ne "" ? "-e $mailadr " : "";
+	return $mail_params;
+}
 
 
+# -----------------------------------------------------------
+# Generate raspiBackup commandline
+# -----------------------------------------------------------
+sub get_raspibackup_command
+{
+
+	# DD
+	$dd_backup_command = 
+		"sudo raspiBackup.sh " .
+		"-o \"$par_stopservices\" " .
+		"-a \"$par_startservices\" " .
+		$mail_params .
+		"-k $ddcron_retention " .
+		"-t ddz " .
+		"-L current " .
+		"/backup\n";
+	print STDERR "DD backup command: " . $dd_backup_command;
+		
+	# TGZ
+	$tgz_backup_command = 
+		"sudo raspiBackup.sh " .
+		"-o \"$par_stopservices\" " .
+		"-a \"$par_startservices\" " .
+		$mail_params .
+		"-k $tgzcron_retention " .
+		"-t tgz " .
+		"-L current " .
+		"/backup\n";
+	print STDERR "TGZ backup command: " . $tgz_backup_command;
+	
+	# rsync
+	$rsync_backup_command = 
+		"sudo raspiBackup.sh " .
+		"-o \"$par_stopservices\" " .
+		"-a \"$par_startservices\" " .
+		$mail_params .
+		"-k $rsynccron_retention " .
+		"-t rsync " .
+		"-L current " .
+		"/backup\n";
+	print STDERR "RSYNC backup command: " . $rsync_backup_command;
+	
+
+
+
+}
