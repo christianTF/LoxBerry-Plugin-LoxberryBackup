@@ -565,6 +565,7 @@ sub get_raspibackup_command
 	$dd_backup_command = 
 		"sudo raspiBackup.sh " .
 		$fake_backup_params . 
+		"-N \"fstab disk temp\" " . 
 		"-o \"$par_stopservices\" " .
 		"-a \"$par_startservices\" " .
 		$mail_params .
@@ -578,6 +579,7 @@ sub get_raspibackup_command
 	$tgz_backup_command = 
 		"sudo raspiBackup.sh " .
 		$fake_backup_params . 
+		"-N \"fstab disk temp\" " . 
 		"-o \"$par_stopservices\" " .
 		"-a \"$par_startservices\" " .
 		$mail_params .
@@ -591,6 +593,7 @@ sub get_raspibackup_command
 	$rsync_backup_command = 
 		"sudo raspiBackup.sh " .
 		$fake_backup_params . 
+		"-N \"fstab disk temp\" " . 
 		"-o \"$par_stopservices\" " .
 		"-a \"$par_startservices\" " .
 		$mail_params .
@@ -599,8 +602,5 @@ sub get_raspibackup_command
 		"-L current " .
 		"/backup\n";
 	print STDERR "RSYNC backup command: " . $rsync_backup_command;
-	
-
-
 
 }

@@ -17,7 +17,6 @@ if [ ! -d $pluginname ]; then
 	pluginname=lbbackup
 fi
 
-
 if [ -x /usr/bin/logger ]; then
     /usr/bin/logger "loxberry-plugin-$pluginname - DAEMON Script from LoxBerry Backup Plugin"
 fi
@@ -25,13 +24,21 @@ fi
 # Correct permissions of logs of older versions
 chmod a+w $loxberryhome/log/plugins/$pluginname/*
 
+# Install raspiBackup
 if [ ! -x /usr/local/bin/raspiBackup.sh ]; then
-	chmod +x $loxberryhome/data/plugins/$pluginname/raspiBackupInstall.sh
+	chmod +x $loxberryhome/data/plugins/$pluginname/raspiBackup*.sh
 	bash $loxberryhome/data/plugins/$pluginname/raspiBackupInstall.sh -c > $loxberryhome/log/plugins/$pluginname/raspiBackupInstall.log 2>&1
 	chmod a+w $lbbackupconfig
 	# We have to default raspiBackup to not zip, as we cannot override this for rsync backups (will fail)
 	sed -i.bak 's/^\(DEFAULT_ZIP_BACKUP=\).*/\1"0"/' $lbbackupconfig 
 fi
+
+# Copy extensions to /usr/local/bin
+if [ -e /$loxberryhome/data/plugins/$pluginname/raspiBackup_*.sh ]; then
+	chmod +x $loxberryhome/data/plugins/$pluginname/raspiBackup*.sh
+	mv -u -f /$loxberryhome/data/plugins/$pluginname/raspiBackup_*.sh /usr/local/bin/
+fi
+
 
 # Add LBBackup to sudoers (need root permission)
 # Sudoers
