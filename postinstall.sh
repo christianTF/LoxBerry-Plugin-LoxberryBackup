@@ -28,11 +28,6 @@ ARGV3=$3 # Third argument is Plugin installation folder
 ARGV4=$4 # Forth argument is Plugin version
 ARGV5=$5 # Fifth argument is Base folder of LoxBerry
 
-if [ ! -d "/backup" ]; then
-	echo "<INFO>Creating /backup directory. Mount your external disk/network drive to this directory."
-	mkdir -p /backup
-fi
-
 	echo "<WARNING> ================================================="
 	echo "<WARNING> Please REBOOT your LoxBerry after installation."
 	echo "<WARNING> Bitte LoxBerry nach der Installation REBOOTEN."
