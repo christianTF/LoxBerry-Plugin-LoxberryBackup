@@ -39,6 +39,11 @@ if [ -e /$loxberryhome/data/plugins/$pluginname/raspiBackup_*.sh ]; then
 	mv -u -f /$loxberryhome/data/plugins/$pluginname/raspiBackup_*.sh /usr/local/bin/
 fi
 
+# Create backup directory if missing
+if [ ! -d "/backup" ]; then
+	mkdir -p /backup
+fi
+
 
 # Add LBBackup to sudoers (need root permission)
 # Sudoers
