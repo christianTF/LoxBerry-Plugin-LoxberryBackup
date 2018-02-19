@@ -74,7 +74,7 @@ our @backuptypes = ('DD', 'RSYNC', 'TGZ');
 ##########################################################################
 
 # Version of this script
-$version = "0.11";
+$version = "0.2.0";
  my $datestring = localtime();
  print STDERR "========== LoxBerry Backup Version $version === ($datestring) =========\n";
  print STDERR "Global variables from LoxBerry::System\n";
