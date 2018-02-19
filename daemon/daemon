@@ -27,7 +27,7 @@ chmod a+w $loxberryhome/log/plugins/$pluginname/*
 # Install raspiBackup
 if [ ! -x /usr/local/bin/raspiBackup.sh ]; then
 	chmod +x $loxberryhome/data/plugins/$pluginname/raspiBackup*.sh
-	bash $loxberryhome/data/plugins/$pluginname/raspiBackupInstall.sh -c > $loxberryhome/log/plugins/$pluginname/raspiBackupInstall.log 2>&1
+	bash $loxberryhome/data/plugins/$pluginname/raspiBackupInstall.sh -c > $loxberryhome/log/plugins/$pluginname/raspiBackup.log 2>&1
 	chmod a+w $lbbackupconfig
 	# We have to default raspiBackup to not zip, as we cannot override this for rsync backups (will fail)
 	sed -i.bak 's/^\(DEFAULT_ZIP_BACKUP=\).*/\1"0"/' $lbbackupconfig 
