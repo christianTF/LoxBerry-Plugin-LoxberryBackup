@@ -1,16 +1,11 @@
 #!/bin/bash
 # Will be executed as user "root".
 
-
 echo "<INFO> Installing raspiBackup"
-echo "<INFO> Current Dir is"
-pwd
-
-
 
 # Install raspiBackup
-chmod +x ./raspiBackupInstall.sh
-bash ./raspiBackupInstall.sh -c > REPLACELBPLOGDIR/raspiBackup.log 2>&1
+chmod +x REPLACELBPDATADIR/raspiBackupInstall.sh
+bash REPLACELBPDATADIR/raspiBackupInstall.sh -c > REPLACELBPLOGDIR/raspiBackup.log 2>&1
 chmod a+w REPLACELBPLOGDIR/raspiBackup.log
 
 # We have to default raspiBackup to not zip, as we cannot override this for rsync backups (will fail)
