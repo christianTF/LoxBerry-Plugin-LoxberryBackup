@@ -16,8 +16,6 @@
 ##########################################################################
 # Modules
 ##########################################################################
-use FindBin;
-use lib "$FindBin::Bin/./perllib";
 use LoxBerry::System;
 use LoxBerry::Web;
 
@@ -42,7 +40,7 @@ our  $cgi = CGI->new;
 my  $pcfg;
 my  $lang;
 my  $languagefile;
-my  $version;
+my  $version = "1.0.1_1";
 my  $pname;
 my  $languagefileplugin;
 my  %TPhrases;
@@ -72,43 +70,36 @@ our @backuptypes = ('DD', 'RSYNC', 'TGZ');
 # Read Settings
 ##########################################################################
 
-# Version of this script
-$version = "0.2.1";
+ my $pluginversion = LoxBerry::System::pluginversion();
  my $datestring = localtime();
- print STDERR "========== LoxBerry Backup Version $version === ($datestring) =========\n";
- print STDERR "Global variables from LoxBerry::System\n";
- print STDERR "Homedir:     $lbhomedir\n";
- print STDERR "Plugindir:   $lbplugindir\n";
- print STDERR "CGIdir:      $lbcgidir\n";
- print STDERR "HTMLdir:     $lbhtmldir\n";
- print STDERR "Templatedir: $lbtemplatedir\n";
- print STDERR "Datadir:     $lbdatadir\n";
- print STDERR "Logdir:      $lblogdir\n";
- print STDERR "Configdir:   $lbconfigdir\n";
+ print STDERR "========== LoxBerry Backup Version $pluginversion === ($datestring) =========\n";
+ # print STDERR "Global variables from LoxBerry::System\n";
+ # print STDERR "Homedir:     $lbhomedir\n";
+ # print STDERR "Plugindir:   $lbpplugindir\n";
+ # print STDERR "CGIdir:      $lbphtmlauthdir\n";
+ # print STDERR "HTMLdir:     $lbphtmldir\n";
+ # print STDERR "Templatedir: $lbptemplatedir\n";
+ # print STDERR "Datadir:     $lbpdatadir\n";
+ # print STDERR "Logdir:      $lbplogdir\n";
+ # print STDERR "Configdir:   $lbpconfigdir\n";
 
 # Start with HTML header
-print $cgi->header(
-         -type    =>      'text/html',
-         -charset =>      'utf-8'
-);
+print $cgi->header;
 
 $cgi->import_names('R');
-
-# Get language from GET, POST or System setting (from LoxBerry::Web)
-$lang = lblanguage();
 
 ##########################################################################
 # Read and process config
 ##########################################################################
 
 # Read plugin config 
-$pcfg 	= new Config::Simple("$lbconfigdir/lbbackup.cfg");
+$pcfg 	= new Config::Simple("$lbpconfigdir/lbbackup.cfg");
 
 if (! defined $pcfg) {
 	$pcfg = new Config::Simple(syntax=>'ini');
-	$pcfg->param("CONFIG.VERSION", $version);
-	$pcfg->write("$lbconfigdir/lbbackup.cfg");
-	$pcfg = new Config::Simple("$lbconfigdir/lbbackup.cfg");
+	$pcfg->param("CONFIG.VERSION", $pluginversion);
+	$pcfg->write("$lbpconfigdir/lbbackup.cfg");
+	$pcfg = new Config::Simple("$lbpconfigdir/lbbackup.cfg");
 }
 
 # Set default parameters
@@ -178,16 +169,16 @@ print STDERR "POSTDATA:";
 
 # Topmenu
 $topmenutemplate = HTML::Template->new(
-	filename => "$lbtemplatedir/multi/topmenu.html",
+	filename => "$lbptemplatedir/multi/topmenu.html",
 	global_vars => 1,
 	loop_context_vars => 1,
 	die_on_bad_params => 0,
 );
 
 # Main
-#$maintemplate = HTML::Template->new(filename => "$lbtemplatedir/multi/main.html");
+#$maintemplate = HTML::Template->new(filename => "$lbptemplatedir/multi/main.html");
 $maintemplate = HTML::Template->new(
-	filename => "$lbtemplatedir/multi/backup.html",
+	filename => "$lbptemplatedir/multi/backup.html",
 	global_vars => 1,
 	loop_context_vars => 1,
 	die_on_bad_params => 0,
@@ -219,11 +210,11 @@ $lang         = substr($lang,0,2);
 # Read Plugin transations
 # Read English language as default
 # Missing phrases in foreign language will fall back to English
-$languagefileplugin 	= "$lbtemplatedir/en/language.txt";
+$languagefileplugin 	= "$lbptemplatedir/en/language.txt";
 Config::Simple->import_from($languagefileplugin, \%TPhrases);
 
 # Read foreign language if exists and not English
-$languagefileplugin = "$lbtemplatedir/$lang/language.txt";
+$languagefileplugin = "$lbptemplatedir/$lang/language.txt";
 # Now overwrite phrase variables with user language
 if ((-e $languagefileplugin) and ($lang ne 'en')) {
 	Config::Simple->import_from($languagefileplugin, \%TPhrases);
@@ -442,7 +433,7 @@ sub save
 			print STDERR "$errormsg\n";
 		}
 		print FILE "#!/bin/bash\n";
-		print FILE "cd $lblogdir\n";
+		print FILE "cd $lbplogdir\n";
 		print FILE $dd_backup_command;
 		close FILE;
 		chmod 0775, $filename;
@@ -455,7 +446,7 @@ sub save
 			print STDERR "$errormsg\n";
 		}
 		print FILE "#!/bin/bash\n";
-		print FILE "cd $lblogdir\n";
+		print FILE "cd $lbplogdir\n";
 		print FILE $tgz_backup_command;
 		close FILE;
 		chmod 0775, $filename;
@@ -468,7 +459,7 @@ sub save
 			print STDERR "$errormsg\n";
 		}
 		print FILE "#!/bin/bash\n";
-		print FILE "cd $lblogdir\n";
+		print FILE "cd $lbplogdir\n";
 		print FILE $rsync_backup_command;
 		close FILE;
 		chmod 0775, $filename;
@@ -521,13 +512,13 @@ sub jit_backup
 
 	get_raspibackup_command($R::jit_destination, $jit_retention);
 	
-	my $filename = "$lbdatadir/jit_backup";
+	my $filename = "$lbpdatadir/jit_backup";
 	unless(open FILE, '>'.$filename) {
 		$errormsg = "Cron job for $backuptype backup - Cannot create file $filename";
 		print STDERR "$errormsg\n";
 	}
 	print FILE "#!/bin/bash\n";
-	print FILE "cd $lblogdir\n";
+	print FILE "cd $lbplogdir\n";
 	if ($backuptype eq "DD") { print FILE $dd_backup_command; }
 	elsif ($backuptype eq "TGZ") { print FILE $tgz_backup_command; }
 	elsif ($backuptype eq "RSYNC") { print FILE $rsync_backup_command; }
@@ -562,10 +553,10 @@ sub email_params
 	print STDERR "Checking E-Mail notification...";
 	if ($R::email_notification eq "1") {
 			print STDERR "Mail Notification is enabled.\n";
-			my $mailcfg = new Config::Simple("$lbhomedir/config/system/mail.cfg");
+			my $mailcfg = new Config::Simple("$lbsconfigdir/mail.cfg");
 			unless($mailadr = $mailcfg->param("SMTP.EMAIL"))
 			{ 		
-			print STDERR "Error reading mail configuration in $lbhomedir/config/system/mail.cfg\n";
+			print STDERR "Error reading mail configuration in $lbsconfigdir/mail.cfg\n";
 			$mailadr = undef;
 			}
 			print STDERR ($mailadr ne "" ? "Mail Address is $mailadr\n" : "Mail notification disabled\n");
