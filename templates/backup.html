@@ -1,6 +1,6 @@
 <center>
 <p>Das Backup-Tool basiert auf <a href="https://www.linux-tips-and-tricks.de/de/raspibackup" target="_blank" rel="noopener">raspiBackup</a>. Dort gibt es detaillierte Infos zu Backup und Restore.</p>
-<p>Das Backup wird automatisch an den Pfad <b>/backup</b> durchgef&uuml;hrt. Mounte deinen externen Datentr&auml;ger oder dein Netzwerklaufwerk an den Pfad /backup.</p>
+<p>Das Backup wird automatisch an den Pfad <b>/backup</b> durchgeführt. Mounte deinen externen Datenträger oder dein Netzwerklaufwerk an den Pfad /backup.</p>
 <form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
 <!-- <form method="post" data-ajax="false" name="cti_form" id="cti_form" action="./index.cgi"> -->
 <style>
@@ -17,11 +17,11 @@ th, td {
 <td>
 <fieldset data-role="controlgroup">
 	   	<legend>Backup-Typ auswählen:</legend>
-		<input type="radio" name="jit-backup-type" id="jit-backup-type-1" value="DD" checked="checked" />
+		<input type="radio" name="jit-backup-type" id="jit-backup-type-1" value="DD" checked="checked" >
      	<label for="jit-backup-type-1">DD (gezippt)</label>
-     	<input type="radio" name="jit-backup-type" id="jit-backup-type-2" value="TGZ"  />
+     	<input type="radio" name="jit-backup-type" id="jit-backup-type-2" value="TGZ"  >
      	<label for="jit-backup-type-2">TGZ</label>
-     	<input type="radio" name="jit-backup-type" id="jit-backup-type-3" value="RSYNC"  />
+     	<input type="radio" name="jit-backup-type" id="jit-backup-type-3" value="RSYNC"  >
      	<label for="jit-backup-type-3">RSYNC</label>
 </fieldset>
 </td>
@@ -125,7 +125,7 @@ FAKE Mode
 <br>
 </form>
 
-<!-- <a id="btnlogs" data-role="button" href="/admin/system/tools/logfile.cgi?logfile=plugins/lbbackup/raspiBackup.log&header=html&format=template" target="_blank" data-inline="true" data-mini="true" data-icon="arrow-d">Logdatei &ouml;ffnen</a> -->
+<!-- <a id="btnlogs" data-role="button" href="/admin/system/tools/logfile.cgi?logfile=plugins/lbbackup/raspiBackup.log&header=html&format=template" target="_blank" data-inline="true" data-mini="true" data-icon="arrow-d">Logdatei öffnen</a> -->
 
 
 </center>

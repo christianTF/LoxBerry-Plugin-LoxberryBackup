@@ -79,9 +79,6 @@ our @backuptypes = ('DD', 'RSYNC', 'TGZ');
  # print STDERR "Logdir:      $lbplogdir\n";
  # print STDERR "Configdir:   $lbpconfigdir\n";
 
-# Start with HTML header
-print $cgi->header;
-
 $cgi->import_names('R');
 
 ##########################################################################
@@ -124,9 +121,8 @@ my $C = $pcfg->vars();
 ##########################################################################
 
 # Main
-#$maintemplate = HTML::Template->new(filename => "$lbptemplatedir/multi/main.html");
 $maintemplate = HTML::Template->new(
-	filename => "$lbptemplatedir/multi/backup.html",
+	filename => "$lbptemplatedir/backup.html",
 	global_vars => 1,
 	loop_context_vars => 1,
 	die_on_bad_params => 0,

@@ -11,7 +11,8 @@ lbbackupconfig="/usr/local/etc/raspiBackup.conf"
 
 # Directory/Pluginname fallback for test environment
 if [ ! -d $loxberryhome ]; then
-	loxberryhome=/opt/loxberry
+	loxberryhome=/opt
+	loxberryhome+=/loxberry
 fi
 if [ ! -d $pluginname ]; then
 	pluginname=lbbackup
