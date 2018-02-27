@@ -316,9 +316,6 @@ LoxBerry::Web::lbheader("LoxBerry Backup", "http://www.loxwiki.eu:80/x/14U_AQ");
 # Main
 print $maintemplate->output;
 
-# Footer
-#print $footertemplate->output;
-
 # In LoxBerry V0.2.x we use the old LoxBerry::Web footer
 LoxBerry::Web::lbfooter();
 
@@ -330,23 +327,6 @@ exit;
 sub save 
 {
 	
-	
-	
-	# $ddcron = $cgi->param('ddcron');
-	# $rsynccron = $cgi->param('rsynccron');
-	# $tgzcron = $cgi->param('tgzcron');
-	
-	# $ddcron_destination = $cgi->param('ddcron_destination');
-	# $rsynccron_destination = $cgi->param('rsynccron_destination');
-	# $tgzcron_destination = $cgi->param('tgzcron_destination');
-	
-	# $ddcron_retention = $cgi->param('ddcron_retention');
-	# $rsynccron_retention = $cgi->param('rsynccron_retention');
-	# $tgzcron_retention = $cgi->param('tgzcron_retention');
-	
-	
-	# $stop_services = $cgi->param('stop_services');
-
 	my $email_notification = $R::email_notification ? "1" : "0";
 	my $fake_backup = $R::fake_backup ? "1" : "0";
 	
@@ -396,11 +376,11 @@ sub save
 	# Unlink all cron jobs
 	
 	foreach my $currtype (@backuptypes) {
-		print STDERR "Deleting cronjobs for ${lbplugindir}_$currtype\n";
-		unlink ("$lbhomedir/system/cron/cron.daily/${lbplugindir}_$currtype");
-		unlink ("$lbhomedir/system/cron/cron.weekly/${lbplugindir}_$currtype");
-		unlink ("$lbhomedir/system/cron/cron.monthly/${lbplugindir}_$currtype");
-		unlink ("$lbhomedir/system/cron/cron.yearly/${lbplugindir}_$currtype");
+		print STDERR "Deleting cronjobs for ${lbpplugindir}_$currtype\n";
+		unlink ("$lbhomedir/system/cron/cron.daily/${lbpplugindir}_$currtype");
+		unlink ("$lbhomedir/system/cron/cron.weekly/${lbpplugindir}_$currtype");
+		unlink ("$lbhomedir/system/cron/cron.monthly/${lbpplugindir}_$currtype");
+		unlink ("$lbhomedir/system/cron/cron.yearly/${lbpplugindir}_$currtype");
 	}
 	
 	### Create new cronjobs
@@ -421,7 +401,7 @@ sub save
 	get_raspibackup_command();
 
 	if ($R::ddcron ne "off") {
-		my $filename = "$lbhomedir/system/cron/cron." . $R::ddcron . "/${lbplugindir}_DD";
+		my $filename = "$lbhomedir/system/cron/cron." . $R::ddcron . "/${lbpplugindir}_DD";
 		unless(open FILE, '>'.$filename) {
 			$errormsg = "Cron job for DD backup - Cannot create file $filename";
 			print STDERR "$errormsg\n";
@@ -434,7 +414,7 @@ sub save
 	}
 		
 	if ($R::tgzcron ne "off") {
-		my $filename = "$lbhomedir/system/cron/cron." . $R::tgzcron . "/${lbplugindir}_TGZ";
+		my $filename = "$lbhomedir/system/cron/cron." . $R::tgzcron . "/${lbpplugindir}_TGZ";
 		unless(open FILE, '>'.$filename) {
 			$errormsg = "Cron job for TGZ backup - Cannot create file $filename";
 			print STDERR "$errormsg\n";
@@ -447,7 +427,7 @@ sub save
 	}
 	
 	if ($R::rsynccron ne "off") {
-		my $filename = "$lbhomedir/system/cron/cron." . $R::rsynccron . "/${lbplugindir}_RSYNC";
+		my $filename = "$lbhomedir/system/cron/cron." . $R::rsynccron . "/${lbpplugindir}_RSYNC";
 		unless(open FILE, '>'.$filename) {
 			$errormsg = "Cron job for RSYNC backup - Cannot create file $filename";
 			print STDERR "$errormsg\n";
