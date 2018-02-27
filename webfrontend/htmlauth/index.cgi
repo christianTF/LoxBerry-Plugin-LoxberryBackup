@@ -39,7 +39,6 @@ my  $languagefile;
 my  $version = "1.0.1_1";
 my  $pname;
 my  $languagefileplugin;
-my  %TPhrases;
 my $topmenutemplate;
 my $maintemplate;
 my $footertemplate;
@@ -118,24 +117,24 @@ $pcfg->param("TGZ.RETENTION", "3") if (! $pcfg->param("TGZ.RETENTION"));
 $pcfg->param("CONFIG.EMAIL_NOTIFICATION", "0") if (! $pcfg->param("CONFIG.EMAIL_NOTIFICATION"));
 $pcfg->param("CONFIG.FAKE_BACKUP", "0") if (! is_enabled($pcfg->param("CONFIG.FAKE_BACKUP"))); 
  
-#my $jitdestination = $pcfg->param("CONFIG.JITDESTINATION") ? $pcfg->param("CONFIG.JITDESTINATION") : "/backup";
-
-#my $ddcron = $pcfg->param("DD.SCHEDULE") ? $pcfg->param("DD.SCHEDULE") : "off";
-#my $rsynccron = defined $pcfg->param("RSYNC.SCHEDULE") ? $pcfg->param("RSYNC.SCHEDULE") : "off";
-#my $tgzcron = defined $pcfg->param("TGZ.SCHEDULE") ? $pcfg->param("TGZ.SCHEDULE") : "off";
-
-# my $ddcron_destination = defined $pcfg->param("DD.DESTINATION") ? $pcfg->param("DD.DESTINATION") : "/backup";
-# my $rsynccron_destination = defined $pcfg->param("RSYNC.DESTINATION") ? $pcfg->param("RSYNC.DESTINATION") : "/backup";
-# my $tgzcron_destination = defined $pcfg->param("TGZ.DESTINATION") ? $pcfg->param("TGZ.DESTINATION") : "/backup";
-
-# my $ddcron_retention = defined $pcfg->param("DD.RETENTION") ? $pcfg->param("DD.RETENTION") : "3";
-# my $rsynccron_retention = defined $pcfg->param("RSYNC.RETENTION") ? $pcfg->param("RSYNC.RETENTION") : "3";
-# my $tgzcron_retention = defined $pcfg->param("TGZ.RETENTION") ? $pcfg->param("TGZ.RETENTION") : "3";
-
-# my $email_notification = $pcfg->param("CONFIG.EMAIL_NOTIFICATION") ne "" ? $pcfg->param("CONFIG.EMAIL_NOTIFICATION") : "0";
-# my $fake_backup = is_enabled($pcfg->param("CONFIG.FAKE_BACKUP"));
-
 my $C = $pcfg->vars();
+
+##########################################################################
+# Template and language settings
+##########################################################################
+
+# Main
+#$maintemplate = HTML::Template->new(filename => "$lbptemplatedir/multi/main.html");
+$maintemplate = HTML::Template->new(
+	filename => "$lbptemplatedir/multi/backup.html",
+	global_vars => 1,
+	loop_context_vars => 1,
+	die_on_bad_params => 0,
+	associate => $pcfg,
+);
+
+%L = LoxBerry::System::readlanguage($maintemplate, "language.ini");
+
 
 ##########################################################################
 # Process form data
@@ -174,55 +173,6 @@ $navbar{2}{URL} = "admin/system/tools/logfile.cgi?logfile=plugins/$lbpplugindir/
 # $navbar{1}{Notify_NAme} = 'cronjob';
  
 $navbar{1}{active} = 1;
-
-# Main
-#$maintemplate = HTML::Template->new(filename => "$lbptemplatedir/multi/main.html");
-$maintemplate = HTML::Template->new(
-	filename => "$lbptemplatedir/multi/backup.html",
-	global_vars => 1,
-	loop_context_vars => 1,
-	die_on_bad_params => 0,
-	associate => $pcfg,
-);
-
-
-# Footer # At the moment not in HTML::Template format
-# $footertemplate = HTML::Template->new(
-	# filename => "$lbhomedir/templates/system/$lang/footer.html",
-	# die_on_bad_params => 0,
-	# associate => $cgi,
-# );
-
-
-
-##########################################################################
-# Translations
-##########################################################################
-
-# Init Language
-# Clean up lang variable
-$lang         =~ tr/a-z//cd;
-$lang         = substr($lang,0,2);
-
-# Read Plugin transations
-# Read English language as default
-# Missing phrases in foreign language will fall back to English
-$languagefileplugin 	= "$lbptemplatedir/en/language.txt";
-Config::Simple->import_from($languagefileplugin, \%TPhrases);
-
-# Read foreign language if exists and not English
-$languagefileplugin = "$lbptemplatedir/$lang/language.txt";
-# Now overwrite phrase variables with user language
-if ((-e $languagefileplugin) and ($lang ne 'en')) {
-	Config::Simple->import_from($languagefileplugin, \%TPhrases);
-}
-
-# Parse phrase variables to html templates
-while (my ($name, $value) = each %TPhrases){
-	$maintemplate->param("T::$name" => $value);
-	#$headertemplate->param("T::$name" => $value);
-	#$footertemplate->param("T::$name" => $value);
-}
 
 ##########################################################################
 # Create some variables for the Template
