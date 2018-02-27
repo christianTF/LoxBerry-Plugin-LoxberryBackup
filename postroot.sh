@@ -8,6 +8,10 @@ chmod +x REPLACELBPDATADIR/raspiBackupInstall.sh
 bash REPLACELBPDATADIR/raspiBackupInstall.sh -c > REPLACELBPLOGDIR/raspiBackup.log 2>&1
 chmod a+w REPLACELBPLOGDIR/raspiBackup.log
 
+chmod +x $5/data/plugins/$3/raspiBackup*.sh
+mv -u -f $5/data/plugins/$3/raspiBackup_*.sh /usr/local/bin/
+
+
 # We have to default raspiBackup to not zip, as we cannot override this for rsync backups (will fail)
 #	sed -i.bak 's/^\(DEFAULT_ZIP_BACKUP=\).*/\1"0"/' $lbbackupconfig 
 
