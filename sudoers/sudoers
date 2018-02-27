@@ -1,0 +1,2 @@
+%loxberry ALL = NOPASSWD: /usr/local/bin/raspiBackup.sh
+%loxberry ALL = NOPASSWD: /usr/local/bin/raspiBackupInstall.sh
