@@ -3,19 +3,14 @@
 # Will be executed as user "root".
 
 # Cleanup of lbbackup Plugin
-loxberryhome=REPLACEINSTALLFOLDER
-pluginname=REPLACEFOLDERNAME
+loxberryhome=REPLACELBHOMEDIR
+pluginname=REPLACELBPPLUGINDIR
 
-# Remove lbbackup from sudoers (need root permission)
-# First check if plugin really was uninstalled
-if [ ! -e $loxberryhome/data/plugins/$pluginname/raspiBackupInstall.sh ]
-	if [ -x /usr/bin/logger ]; then
-		/usr/bin/logger "loxberry-plugin-$pluginname - UNINSTALL Script from LoxBerry Backup Plugin"
-	fi
-	rm -f /etc/sudoers.d/$pluginname
-	rm -f /usr/local/etc/raspiBackup*.conf*
-	rm -f /usr/local/bin/raspiBackup*.sh*
-	rm -f /usr/local/bin/raspiBackupInstall.sh
-fi 
-# Uninstall raspiBackup.sh
+/usr/bin/logger "loxberry-plugin-$pluginname - UNINSTALL Script from LoxBerry Backup Plugin"
+
+# rm -f /etc/sudoers.d/$pluginname
+rm -f /usr/local/etc/raspiBackup*.conf*
+rm -f /usr/local/bin/raspiBackup*.sh*
+rm -f /usr/local/bin/raspiBackupInstall.sh
+
 exit 0
