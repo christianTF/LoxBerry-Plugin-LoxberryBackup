@@ -1,7 +1,8 @@
 <center>
 <p>Das Backup-Tool basiert auf <a href="https://www.linux-tips-and-tricks.de/de/raspibackup" target="_blank" rel="noopener">raspiBackup</a>. Dort gibt es detaillierte Infos zu Backup und Restore.</p>
 <p>Das Backup wird automatisch an den Pfad <b>/backup</b> durchgef&uuml;hrt. Mounte deinen externen Datentr&auml;ger oder dein Netzwerklaufwerk an den Pfad /backup.</p>
-<form method="post" data-ajax="false" name="cti_form" id="cti_form" action="./index.cgi">
+<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
+<!-- <form method="post" data-ajax="false" name="cti_form" id="cti_form" action="./index.cgi"> -->
 <style>
 th, td {
     padding: 10px;
@@ -26,16 +27,22 @@ th, td {
 </td>
 <td>
 <!-- <a id="btnbackup" data-role="button" data-mini="false" onclick="$('#Logfiletextbox').append('<hr\><div style=\'text-align:center; width:100%; color:#000000; background-color:lightgreen;\'>Log</div><hr\>'); $('#response').html( 'Backup wird gestartet...' ); $('#response').fadeTo( 'fast', 1 ); $.get('./index.cgi?do=backup', function(response) { setTimeout( function(){ $('#response').fadeTo( 'slow', 0 ); }, 5000); setTimeout( function(){ $('#response').html( '&nbsp;' ); }, 6500); $('#response').html(response);});">Backup jetzt starten!</a>-->
-<input type="hidden" name="jit_backup" value="jit_backup">
-<input type="submit" name="jit_submit" id="jit_submit" value="Bereite vor..." disabled >
+<div>
+	<label for="jit_destination">Backup-Ziel</label>
+	<input id="jit_destination" name="jit_destination" min="0" max="100" value="<TMPL_VAR CONFIG.JITDESTINATION>">
+</div>
+<div>
+	<input type="hidden" name="jit_backup" value="jit_backup">
+	<input type="button" name="jit_submit" id="jit_submit" value="Bereite vor..." disabled >
+</div>
 </td>
 </tr>
 </tbody>
 </table>
-</form> 
+<!-- </form>  -->
 
 <h2>Zeitplan</h2>
-<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
+<!-- <form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi"> -->
 <table class="ui-widget" style="border-collapse:collapse;"  border="1" width="80%">
 <!-- <table style="border-color: grey; margin-left: auto; margin-right: auto;" border="1" width="80%"> -->
 <!-- <table id="jit-table" data-role="table" > -->
@@ -43,6 +50,7 @@ th, td {
 <tr>
 <th>Backup-Typ</th>
 <th>Zeitplan</th>
+<th>Backup-Ziel</th>
 <th>Aufbewahrte Sicherungen</th>
 </tr>
 </thead>
@@ -56,7 +64,8 @@ th, td {
 <TMPL_VAR NAME=DD_RADIO_GROUP>
 </fieldset>
 </td>
-<td><input id="ddcron_retention" name="ddcron_retention" min="0" max="100" type="number" value="<TMPL_VAR NAME=DD.RETENTION>" />&nbsp;Backups</td>
+<td><input id="ddcron_destination" name="ddcron_destination" min="0" max="100" value="<TMPL_VAR NAME=DD.DESTINATION>"></td>
+<td><input id="ddcron_retention" name="ddcron_retention" min="0" max="100" type="number" value="<TMPL_VAR NAME=DD.RETENTION>">&nbsp;Backups</td>
 </tr>
 <tr>
 <td>Dateibasiertes Backup (rsync)</td>
@@ -65,7 +74,8 @@ th, td {
 <TMPL_VAR NAME=RSYNC_RADIO_GROUP>
 </fieldset>
 </td>
-<td><input id="rsynccron_retention" name="rsynccron_retention"  min="0" max="100" type="number" value="<TMPL_VAR NAME=RSYNC.RETENTION>" />&nbsp;Backups</td>
+<td><input id="rsynccron_destination" name="rsynccron_destination" min="0" max="100" value="<TMPL_VAR NAME=RSYNC.DESTINATION>"></td>
+<td><input id="rsynccron_retention" name="rsynccron_retention"  min="0" max="100" type="number" value="<TMPL_VAR NAME=RSYNC.RETENTION>">&nbsp;Backups</td>
 </tr>
 <tr>
 <td>Dateibasiertes, komprimiertes Backup (tgz)</td>
@@ -74,7 +84,8 @@ th, td {
 <TMPL_VAR NAME=TGZ_RADIO_GROUP>
 </fieldset>
 </td>
-<td><input id="tgzcron_retention" name="tgzcron_retention" min="0" max="100" type="number" value="<TMPL_VAR NAME=TGZ.RETENTION>" />&nbsp;Backups</td>
+<td><input id="tgzcron_destination" name="tgzcron_destination" min="0" max="100" value="<TMPL_VAR NAME=TGZ.DESTINATION>"></td>
+<td><input id="tgzcron_retention" name="tgzcron_retention" min="0" max="100" type="number" value="<TMPL_VAR NAME=TGZ.RETENTION>">&nbsp;Backups</td>
 </tr>
 <tr>
 <td>
@@ -151,5 +162,11 @@ function mycallback(data) {
 	  $("#jit_submit").val("Backup jetzt starten!").button("refresh");
 	}
 }
+
+$("#jit_submit").click(function(){
+	$("form#main_form").submit();
+
+
+});
 
 </script>
