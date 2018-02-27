@@ -215,19 +215,6 @@ my $tgz_radio_group = radio_group(
 						-labels => \%labels,
 						-default => $C->{'TGZ.SCHEDULE'} ,
 						);
-
-# my $tgz_radio_group = popup_menu(
-						# -name => 'tgzcron',
-						# -values => optgroup(-name => 'tgzcronoptgroup',
-											 # -values=>['off', 'daily', 'weekly', 'monthly', 'yearly'],
-											 # #-labels => \%labels
-									# ),		 
-						
-						# -default => $tgzcron ,
-						# );
-
-						
-						
 						
 $maintemplate->param( TGZ_RADIO_GROUP => $tgz_radio_group);
 
@@ -258,15 +245,10 @@ $maintemplate->param( CHECKPIDURL => "./grep_raspibackup.cgi");
 ##########################################################################
 
 # Header
-#print $headertemplate->output;
-
-# In LoxBerry V0.2.x we use the old LoxBerry::Web header
 LoxBerry::Web::lbheader("LoxBerry Backup", "http://www.loxwiki.eu:80/x/14U_AQ");
 
-# Main
 print $maintemplate->output;
 
-# In LoxBerry V0.2.x we use the old LoxBerry::Web footer
 LoxBerry::Web::lbfooter();
 
 exit;
