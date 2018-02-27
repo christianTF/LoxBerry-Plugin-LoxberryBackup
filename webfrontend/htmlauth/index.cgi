@@ -21,16 +21,13 @@ use LoxBerry::Web;
 
 use CGI::Carp qw(fatalsToBrowser);
 use CGI qw/:standard/;
-use Config::Simple;
 # String::Escape needs to be installed!
 # use String::Escape qw( unquotemeta );
-use HTML::Template;
 use warnings;
 use strict;
-no strict "refs"; # we need it for template system and for contructs like ${"skalar".$i} in loops
 
 # For debug purposes
-use Data::Dumper;
+# use Data::Dumper;
 
 
 ##########################################################################
