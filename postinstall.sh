@@ -32,7 +32,6 @@ ARGV5=$5 # Fifth argument is Base folder of LoxBerry
 # Copy extensions to /usr/local/bin
 chmod +x $5/data/plugins/$3/raspiBackup*.sh
 mv -u -f /$5/data/plugins/$3/raspiBackup_*.sh /usr/local/bin/
-fi
 
 # Exit with Status 0
 exit 0
