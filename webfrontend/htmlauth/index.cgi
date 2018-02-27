@@ -112,9 +112,10 @@ $pcfg->param("DD.RETENTION", "3") if (! $pcfg->param("DD.RETENTION"));
 $pcfg->param("RSYNC.RETENTION", "3") if (! $pcfg->param("RSYNC.RETENTION"));
 $pcfg->param("TGZ.RETENTION", "3") if (! $pcfg->param("TGZ.RETENTION"));
 
-$pcfg->param("CONFIG.EMAIL_NOTIFICATION", "0") if (! $pcfg->param("CONFIG.EMAIL_NOTIFICATION"));
-$pcfg->param("CONFIG.FAKE_BACKUP", "0") if (! is_enabled($pcfg->param("CONFIG.FAKE_BACKUP"))); 
- 
+# $pcfg->param("CONFIG.EMAIL_NOTIFICATION", "0") if (is_disabled($pcfg->param("CONFIG.EMAIL_NOTIFICATION")));
+# $pcfg->param("CONFIG.FAKE_BACKUP", "0") if (! is_disabled($pcfg->param("CONFIG.FAKE_BACKUP"))); 
+
+
 my $C = $pcfg->vars();
 
 ##########################################################################
@@ -146,6 +147,8 @@ if ($R::jit_backup) {
 	# Data were posted - save 
 	&jit_backup;
 }
+
+$C = $pcfg->vars();
 
 #our $postdata = $cgi->param('ddcron');
 print STDERR "POSTDATA:";
@@ -216,6 +219,18 @@ my $tgz_radio_group = radio_group(
 						
 $maintemplate->param( TGZ_RADIO_GROUP => $tgz_radio_group);
 
+if (is_enabled($C->{"CONFIG.NOTIFY_BACKUP_INFOS"})) {
+	$maintemplate->param("NOTIFY_BACKUP_INFOS", 'checked="checked"');
+} else {
+	$maintemplate->param("NOTIFY_BACKUP_INFOS", '');
+}
+
+if (is_enabled($C->{"CONFIG.NOTIFY_BACKUP_ERRORS"})) {
+	$maintemplate->param("NOTIFY_BACKUP_ERRORS", 'checked="checked"');
+} else {
+	$maintemplate->param("NOTIFY_BACKUP_ERRORS", '');
+}
+
 my $email_notification_html = checkbox(-name => 'email_notification',
 								  -checked => $C->{'CONFIG.EMAIL_NOTIFICATION'},
 									-value => 1,
@@ -257,8 +272,13 @@ exit;
 sub save 
 {
 	
+	my $notify_infos = is_enabled($R::NOTIFY_BACKUP_INFOS) ? "on" : "off";
+	my $notify_errors = is_enabled($R::NOTIFY_BACKUP_ERRORS) ? "on" : "off";
+	
 	my $email_notification = $R::email_notification ? "1" : "0";
 	my $fake_backup = $R::fake_backup ? "1" : "0";
+	
+	print STDERR "Notify_infos: $notify_infos / Notify_errors: $notify_errors\n";
 	
 	# Write schedules to config if it appears in the possible schedule list
 	my @schedules = qw ( off daily weekly monthly yearly );
@@ -288,6 +308,9 @@ sub save
 	$pcfg->param("RSYNC.RETENTION", $R::rsynccron_retention);
 	$pcfg->param("TGZ.RETENTION", $R::tgzcron_retention);
 
+	$pcfg->param("CONFIG.NOTIFY_BACKUP_INFOS", $notify_infos);
+	$pcfg->param("CONFIG.NOTIFY_BACKUP_ERRORS", $notify_errors);
+	
 	$pcfg->param("CONFIG.EMAIL_NOTIFICATION", $email_notification);
 	$pcfg->param("CONFIG.FAKE_BACKUP", $fake_backup);
 		
