@@ -5,7 +5,7 @@ echo "<INFO> Installing raspiBackup"
 
 # Install raspiBackup
 chmod +x REPLACELBPDATADIR/raspiBackupInstall.sh
-bash REPLACELBPDATADIR/raspiBackupInstall.sh -c > REPLACELBPLOGDIR/raspiBackup.log 2>&1
+bash REPLACELBPDATADIR/raspiBackupInstall.sh -c
 chmod a+w REPLACELBPLOGDIR/raspiBackup.log
 
 chmod +x $5/data/plugins/$3/raspiBackup*.sh
