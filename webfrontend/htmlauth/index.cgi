@@ -259,7 +259,7 @@ $maintemplate->param( CHECKPIDURL => "./grep_raspibackup.cgi");
 
 # Header
 LoxBerry::Web::lbheader("LoxBerry Backup", "http://www.loxwiki.eu:80/x/14U_AQ");
-
+print LoxBerry::Log::get_notifications_html($lbpplugindir);
 print $maintemplate->output;
 
 LoxBerry::Web::lbfooter();
@@ -350,7 +350,15 @@ sub save
 	$par_startservices = $par_startservices ne "" ? substr ($par_startservices, 0, -3) : ":";
 	
 	$mail_params = email_params();
-	
+
+	my $notifyscript = qq(
+if [ "\$?" = "0" ]; then
+	notify_ext PACKAGE=$lbpplugindir NAME=backup MESSAGE="LoxBerry Backup: The last scheduled backup has successfully finished." SEVERITY=6 LOGFILE=plugins/$lbpplugindir/raspiBackup.log
+else
+	notify_ext PACKAGE=lbupdate NAME=backup MESSAGE="LoxBerry Backup: ERROR creating the last scheduled backup. See the logfile for more information." SEVERITY=3 LOGFILE=plugins/$lbpplugindir/raspiBackup.log
+fi
+);
+
 	get_raspibackup_command();
 
 	if ($R::ddcron ne "off") {
@@ -360,8 +368,10 @@ sub save
 			print STDERR "$errormsg\n";
 		}
 		print FILE "#!/bin/bash\n";
+		print FILE ". $lbhomedir/libs/bashlib/notify.sh\n";
 		print FILE "cd $lbplogdir\n";
 		print FILE $dd_backup_command;
+		print FILE $notifyscript;
 		close FILE;
 		chmod 0775, $filename;
 	}
@@ -373,8 +383,10 @@ sub save
 			print STDERR "$errormsg\n";
 		}
 		print FILE "#!/bin/bash\n";
+		print FILE ". $lbhomedir/libs/bashlib/notify.sh\n";
 		print FILE "cd $lbplogdir\n";
 		print FILE $tgz_backup_command;
+		print FILE $notifyscript;
 		close FILE;
 		chmod 0775, $filename;
 	}
@@ -386,8 +398,10 @@ sub save
 			print STDERR "$errormsg\n";
 		}
 		print FILE "#!/bin/bash\n";
+		print FILE ". $lbhomedir/libs/bashlib/notify.sh\n";
 		print FILE "cd $lbplogdir\n";
 		print FILE $rsync_backup_command;
+		print FILE $notifyscript;
 		close FILE;
 		chmod 0775, $filename;
 	}
@@ -437,6 +451,14 @@ sub jit_backup
 	$jit_retention = 10;
 	print STDERR "JIT Retention number (max) was identified as $jit_retention.\n";
 
+	my $notifyscript = qq(
+if [ "\$?" = "0" ]; then
+	notify_ext PACKAGE=$lbpplugindir NAME=backup MESSAGE="LoxBerry Backup: The last scheduled backup has successfully finished." SEVERITY=6 LOGFILE=plugins/$lbpplugindir/raspiBackup.log
+else
+	notify_ext PACKAGE=lbupdate NAME=backup MESSAGE="LoxBerry Backup: ERROR creating the last scheduled backup. See the logfile for more information." SEVERITY=3 LOGFILE=plugins/$lbpplugindir/raspiBackup.log
+fi
+);
+
 	get_raspibackup_command($R::jit_destination, $jit_retention);
 	
 	my $filename = "$lbpdatadir/jit_backup";
@@ -445,10 +467,12 @@ sub jit_backup
 		print STDERR "$errormsg\n";
 	}
 	print FILE "#!/bin/bash\n";
+	print FILE ". $lbhomedir/libs/bashlib/notify.sh\n";
 	print FILE "cd $lbplogdir\n";
 	if ($backuptype eq "DD") { print FILE $dd_backup_command; }
 	elsif ($backuptype eq "TGZ") { print FILE $tgz_backup_command; }
 	elsif ($backuptype eq "RSYNC") { print FILE $rsync_backup_command; }
+	print FILE "$notifyscript";
 	close FILE;
 	chmod 0775, $filename;
 	
