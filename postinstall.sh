@@ -28,10 +28,12 @@ ARGV3=$3 # Third argument is Plugin installation folder
 ARGV4=$4 # Forth argument is Plugin version
 ARGV5=$5 # Fifth argument is Base folder of LoxBerry
 
-	echo "<WARNING> ================================================="
-	echo "<WARNING> Please REBOOT your LoxBerry after installation."
-	echo "<WARNING> Bitte LoxBerry nach der Installation REBOOTEN."
-	echo "<WARNING> ================================================="
+
+# Copy extensions to /usr/local/bin
+if [ -e $5/data/plugins/$pluginname/raspiBackup_*.sh ]; then
+	chmod +x $loxberryhome/data/plugins/$pluginname/raspiBackup*.sh
+	mv -u -f /$loxberryhome/data/plugins/$pluginname/raspiBackup_*.sh /usr/local/bin/
+fi
 
 # Exit with Status 0
 exit 0
