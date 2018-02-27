@@ -3,6 +3,10 @@
 
 
 echo "<INFO> Installing raspiBackup"
+echo "<INFO> Current Dir is"
+pwd
+
+
 
 # Install raspiBackup
 chmod +x ./raspiBackupInstall.sh
