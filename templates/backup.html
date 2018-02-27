@@ -26,7 +26,6 @@ th, td {
 </fieldset>
 </td>
 <td>
-<!-- <a id="btnbackup" data-role="button" data-mini="false" onclick="$('#Logfiletextbox').append('<hr\><div style=\'text-align:center; width:100%; color:#000000; background-color:lightgreen;\'>Log</div><hr\>'); $('#response').html( 'Backup wird gestartet...' ); $('#response').fadeTo( 'fast', 1 ); $.get('./index.cgi?do=backup', function(response) { setTimeout( function(){ $('#response').fadeTo( 'slow', 0 ); }, 5000); setTimeout( function(){ $('#response').html( '&nbsp;' ); }, 6500); $('#response').html(response);});">Backup jetzt starten!</a>-->
 <div>
 	<label for="jit_destination">Backup-Ziel</label>
 	<input id="jit_destination" name="jit_destination" min="0" max="100" value="<TMPL_VAR CONFIG.JITDESTINATION>">
@@ -89,19 +88,19 @@ th, td {
 </tr>
 <tr>
 <td>
-E-Mail Benachrichtigung
-</td>
-	<td><TMPL_VAR NAME=EMAIL_NOTIFICATION>
-	</td>
-	<td>Die LoxBerry Mailkonfiguration muss durchgeführt sein.</td>
-</tr>
-<tr>
-<td>
 FAKE Mode
 </td>
 	<td><TMPL_VAR NAME=FAKE_BACKUP>
 	</td>
 	<td>Damit wird alles ausser einem Backup druchgefuehrt.<br>Praktisch zum E-Mail testen.</td>
+</tr>
+<tr>
+<td>
+Traditionelle E-Mail Benachrichtigung
+</td>
+	<td><TMPL_VAR NAME=EMAIL_NOTIFICATION>
+	</td>
+	<td>Die traditionelle E-Mail-Benachrichtigung von raspiBackup verwenden.</td>
 </tr>
 
 <tr>

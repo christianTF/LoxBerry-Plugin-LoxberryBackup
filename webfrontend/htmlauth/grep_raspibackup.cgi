@@ -12,4 +12,4 @@ my $pids = `pgrep raspiBackup.sh`;
 my $nr_of_lines = $pids =~ tr/\n//;
 print $nr_of_lines . "\n";
 # print "1\n";
-print STDERR "grep raspibackup called - result $nr_of_lines processes.\n";
+# print STDERR "grep raspibackup called - result $nr_of_lines processes.\n";

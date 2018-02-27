@@ -18,6 +18,7 @@
 ##########################################################################
 use LoxBerry::System;
 use LoxBerry::Web;
+use LoxBerry::Log;
 
 use CGI qw/:standard/;
 # String::Escape needs to be installed!
@@ -164,7 +165,8 @@ $navbar{1}{Notify_Package} = $lbpplugindir;
 # $navbar{1}{Notify_NAme} = 'daemon';
  
 $navbar{2}{Name} = "Logfile";
-$navbar{2}{URL} = "admin/system/tools/logfile.cgi?logfile=plugins/$lbpplugindir/raspiBackup.log&header=html&format=template";
+$navbar{2}{URL} = "/admin/system/tools/logfile.cgi?logfile=plugins/$lbpplugindir/raspiBackup.log&header=html&format=template";
+$navbar{2}{target} = "_blank";
 # $navbar{1}{Notify_Package} = $lbpplugindir;
 # $navbar{1}{Notify_NAme} = 'cronjob';
  
@@ -416,7 +418,7 @@ sub jit_backup
 	
 	my $filename = "$lbpdatadir/jit_backup";
 	unless(open FILE, '>'.$filename) {
-		$errormsg = "Cron job for $backuptype backup - Cannot create file $filename";
+		$errormsg = "JIT backup job for $backuptype backup - Cannot create file $filename";
 		print STDERR "$errormsg\n";
 	}
 	print FILE "#!/bin/bash\n";
@@ -451,9 +453,12 @@ sub email_params
 {
 	my $mailadr = "";
 	my $mail_params = "";
+	my $friendlyname;
 	
 	print STDERR "Checking E-Mail notification...";
 	if ($R::email_notification eq "1") {
+			$friendlyname = trim(lbfriendlyname() . " LoxBerry");
+			
 			print STDERR "Mail Notification is enabled.\n";
 			my $mailcfg = new Config::Simple("$lbsconfigdir/mail.cfg");
 			unless($mailadr = $mailcfg->param("SMTP.EMAIL"))
@@ -463,7 +468,7 @@ sub email_params
 			}
 			print STDERR ($mailadr ne "" ? "Mail Address is $mailadr\n" : "Mail notification disabled\n");
 	}
-	$mail_params = $mailadr ne "" ? "-e $mailadr " : "";
+	$mail_params = $mailadr ne "" ? "-e $mailadr -E \"-r $mailadr\" " : "";
 	return $mail_params;
 }
 
@@ -494,6 +499,7 @@ sub get_raspibackup_command
 		$mail_params .
 		"-k " . ($jit_retention ? $jit_retention : $R::ddcron_retention) . " " .
 		"-t ddz " .
+#		"-z+ " .
 		"-L current " .
 		"$dest\n";
 	print STDERR "DD backup command: " . $dd_backup_command;
@@ -509,6 +515,7 @@ sub get_raspibackup_command
 		$mail_params .
 		"-k " . ($jit_retention ? $jit_retention : $R::tgzcron_retention) . " " .
 		"-t tgz " .
+#		"-z+ " .
 		"-L current " .
 		"$dest\n";
 	print STDERR "TGZ backup command: " . $tgz_backup_command;
@@ -524,6 +531,7 @@ sub get_raspibackup_command
 		$mail_params .
 		"-k " . ($jit_retention ? $jit_retention : $R::rsynccron_retention) . " " .
 		"-t rsync " .
+#		"-z- " .
 		"-L current " .
 		"$dest\n";
 	print STDERR "RSYNC backup command: " . $rsync_backup_command;
