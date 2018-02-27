@@ -19,7 +19,6 @@
 use LoxBerry::System;
 use LoxBerry::Web;
 
-use CGI::Carp qw(fatalsToBrowser);
 use CGI qw/:standard/;
 # String::Escape needs to be installed!
 # use String::Escape qw( unquotemeta );
@@ -56,6 +55,7 @@ my $par_stopservices;
 my $par_startservices;
 my $mail_params;
 our $errormsg;
+our %navbar;
 
 my $dd_backup_command;
 my $tgz_backup_command;
@@ -161,16 +161,19 @@ print STDERR "POSTDATA:";
 # Initialize html templates
 ##########################################################################
 
-# See http://www.perlmonks.org/?node_id=65642
+# Navigation Bar
 
-
-# Topmenu
-$topmenutemplate = HTML::Template->new(
-	filename => "$lbptemplatedir/multi/topmenu.html",
-	global_vars => 1,
-	loop_context_vars => 1,
-	die_on_bad_params => 0,
-);
+$navbar{1}{Name} = "LoxBerry Backup";
+$navbar{1}{URL} = 'index.cgi';
+$navbar{1}{Notify_Package} = $lbpplugindir;
+# $navbar{1}{Notify_NAme} = 'daemon';
+ 
+$navbar{2}{Name} = "Logfile";
+$navbar{2}{URL} = "admin/system/tools/logfile.cgi?logfile=plugins/$lbpplugindir/raspiBackup.log&header=html&format=template";
+# $navbar{1}{Notify_Package} = $lbpplugindir;
+# $navbar{1}{Notify_NAme} = 'cronjob';
+ 
+$navbar{1}{active} = 1;
 
 # Main
 #$maintemplate = HTML::Template->new(filename => "$lbptemplatedir/multi/main.html");
@@ -181,9 +184,6 @@ $maintemplate = HTML::Template->new(
 	die_on_bad_params => 0,
 	associate => $pcfg,
 );
-
-# Activate Backup button in topmenu
-$topmenutemplate->param( CLASS_INDEX => 'class="ui-btn-active ui-state-persist"');
 
 
 # Footer # At the moment not in HTML::Template format
@@ -312,9 +312,6 @@ $maintemplate->param( CHECKPIDURL => "./grep_raspibackup.cgi");
 
 # In LoxBerry V0.2.x we use the old LoxBerry::Web header
 LoxBerry::Web::lbheader("LoxBerry Backup", "http://www.loxwiki.eu:80/x/14U_AQ");
-
-# Topmenu
-print $topmenutemplate->output;
 
 # Main
 print $maintemplate->output;
