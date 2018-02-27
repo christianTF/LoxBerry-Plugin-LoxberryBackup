@@ -28,5 +28,10 @@ ARGV3=$3 # Third argument is Plugin installation folder
 ARGV4=$4 # Forth argument is Plugin version
 ARGV5=$5 # Fifth argument is Base folder of LoxBerry
 
+if [ ! -e REPLACELBPLOGDIR ]; then
+	echo "<INFO> Creating log directory REPLACELBPLOGDIR"
+	mkdir -p REPLACELBPLOGDIR
+fi
+
 # Exit with Status 0
 exit 0

@@ -6,7 +6,6 @@ echo "<INFO> Installing raspiBackup"
 # Install raspiBackup
 chmod +x REPLACELBPDATADIR/raspiBackupInstall.sh
 bash REPLACELBPDATADIR/raspiBackupInstall.sh -c
-chmod a+w REPLACELBPLOGDIR/raspiBackup.log
 
 chmod +x $5/data/plugins/$3/raspiBackup*.sh
 mv -u -f $5/data/plugins/$3/raspiBackup_*.sh /usr/local/bin/
@@ -17,6 +16,7 @@ mv -u -f $5/data/plugins/$3/raspiBackup_*.sh /usr/local/bin/
 
 # Create backup directory if missing
 if [ ! -d "/backup" ]; then
+	echo "<INFO> Creating default /backup directory"
 	mkdir -p /backup
 	chown loxberry:loxberry /backup 
 fi
