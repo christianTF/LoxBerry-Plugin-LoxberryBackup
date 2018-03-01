@@ -1,0 +1,190 @@
+<center>
+<p>Das Backup-Tool basiert auf <a href="https://www.linux-tips-and-tricks.de/de/raspibackup" target="_blank" rel="noopener">raspiBackup</a>. Dort gibt es detaillierte Infos zu Backup und Restore.</p>
+<p>Das Backup wird automatisch an den Pfad <b>/backup</b> durchgeführt. Mounte deinen externen Datenträger oder dein Netzwerklaufwerk an den Pfad /backup.</p>
+<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
+<!-- <form method="post" data-ajax="false" name="cti_form" id="cti_form" action="./index.cgi"> -->
+<style>
+th, td {
+    padding: 10px;
+    // text-align: left;
+}
+</style>
+
+
+<table style="border-collapse:collapse;" border="0" width="80%">
+<tbody>
+<tr>
+<td>
+<fieldset data-role="controlgroup">
+	   	<legend>Backup-Typ auswählen:</legend>
+		<input type="radio" name="jit-backup-type" id="jit-backup-type-1" value="DD" checked="checked" >
+     	<label for="jit-backup-type-1">DD (gezippt)</label>
+     	<input type="radio" name="jit-backup-type" id="jit-backup-type-2" value="TGZ"  >
+     	<label for="jit-backup-type-2">TGZ</label>
+     	<input type="radio" name="jit-backup-type" id="jit-backup-type-3" value="RSYNC"  >
+     	<label for="jit-backup-type-3">RSYNC</label>
+</fieldset>
+</td>
+<td>
+<div>
+	<label for="jit_destination">Backup-Ziel</label>
+	<input id="jit_destination" name="jit_destination" min="0" max="100" value="<TMPL_VAR CONFIG.JITDESTINATION>">
+</div>
+<div>
+	<input type="hidden" name="jit_backup" value="jit_backup">
+	<input type="button" name="jit_submit" id="jit_submit" value="Bereite vor..." disabled >
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- </form>  -->
+
+<h2>Zeitplan</h2>
+<!-- <form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi"> -->
+<table class="ui-widget" style="border-collapse:collapse;"  border="1" width="95%">
+<!-- <table style="border-color: grey; margin-left: auto; margin-right: auto;" border="1" width="80%"> -->
+<!-- <table id="jit-table" data-role="table" > -->
+<thead>
+<tr>
+<th style="width:25%">Backup-Typ</th>
+<th>Zeitplan</th>
+<th>Backup-Ziel</th>
+<th style="width:15%">Aufbewahrte Sicherungen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<p>Komprimiertes Image Backup (dd gezippt)</p>
+</td>
+<td>
+<fieldset data-role="controlgroup" data-mini="true">
+<TMPL_VAR NAME=DD_RADIO_GROUP>
+</fieldset>
+</td>
+<td><input id="ddcron_destination" name="ddcron_destination" value="<TMPL_VAR NAME=DD.DESTINATION>"></td>
+<td><input id="ddcron_retention" name="ddcron_retention" min="0" max="100" type="number" value="<TMPL_VAR NAME=DD.RETENTION>" style="max-width:50px;">
+<label for="ddcron_retention">Backups</label></td>
+</tr>
+<tr>
+<td>Dateibasiertes Backup (rsync)</td>
+<td>
+<fieldset data-role="controlgroup" data-mini="true">
+<TMPL_VAR NAME=RSYNC_RADIO_GROUP>
+</fieldset>
+</td>
+<td><input id="rsynccron_destination" name="rsynccron_destination" value="<TMPL_VAR NAME=RSYNC.DESTINATION>"></td>
+<td><input id="rsynccron_retention" name="rsynccron_retention"  min="0" max="100" type="number" value="<TMPL_VAR NAME=RSYNC.RETENTION>" style="max-width:50px;">
+<label for="ddcron_retention">Backups</label></td>
+</tr>
+<tr>
+<td>Dateibasiertes, komprimiertes Backup (tgz)</td>
+<td>
+<fieldset data-role="controlgroup" data-mini="true">
+<TMPL_VAR NAME=TGZ_RADIO_GROUP>
+</fieldset>
+</td>
+<td><input id="tgzcron_destination" name="tgzcron_destination" value="<TMPL_VAR NAME=TGZ.DESTINATION>"></td>
+<td><input id="tgzcron_retention" name="tgzcron_retention" min="0" max="100" type="number" value="<TMPL_VAR NAME=TGZ.RETENTION>" style="max-width:50px;"><label for="ddcron_retention">Backups</label></td>
+
+</tr>
+<tr>
+<td>
+FAKE Mode
+</td>
+	<td><TMPL_VAR NAME=FAKE_BACKUP>
+	</td>
+	<td colspan="2" class="hint">Damit wird alles außer einem Backup druchgefuehrt.<br>Praktisch zum E-Mail testen.</td>
+</tr>
+
+<tr>
+<td>
+Backup-Benachrichtigung
+</td>
+	<td>
+	<fieldset data-role="controlgroup" style="display:inline-block;width:auto;">
+        <!-- <legend>System notifications</legend> -->
+        <input type="checkbox" name="NOTIFY_BACKUP_INFOS" id="NOTIFY_BACKUP_INFOS" class="NOTIFY" <TMPL_VAR NOTIFY_BACKUP_INFOS>><label for="NOTIFY_BACKUP_INFOS"><TMPL_VAR BACKUP.OPTION_INFOS></label>
+        <input type="checkbox" name="NOTIFY_BACKUP_ERRORS" id="NOTIFY_BACKUP_ERRORS" class="NOTIFY" <TMPL_VAR NOTIFY_BACKUP_ERRORS>><label for="NOTIFY_BACKUP_ERRORS"><TMPL_VAR BACKUP.OPTION_ERRORS></label>
+		</fieldset>
+	</td>
+	<td colspan="2" class="hint">Stelle ein, in welchen Situationen du nach einem Backup benachrichtigt werden möchtest.</td>
+</tr>
+
+
+
+<tr>
+<td>
+Traditionelle E-Mail Benachrichtigung
+</td>
+	<td><fieldset data-role="controlgroup" class="ui-mini"><TMPL_VAR NAME=EMAIL_NOTIFICATION></fieldset>
+	</td>
+	<td colspan="2" class="hint">Die traditionelle E-Mail-Benachrichtigung von raspiBackup verwenden. Es macht keinen Sinn, diese Option zu aktivieren, wenn du bereits die Backup-Benachrichtigung aktiviert hast.</td>
+</tr>
+
+<tr>
+<td>Folgende Dienste beenden und starten
+</td>
+<td>
+<textarea name="stop_services" id="stop_services"><TMPL_VAR NAME=STOP_SERVICES></textarea>
+</td>
+<td colspan="2" class="hint">Das Beenden von Diensten stellt die Datenkonsistenz sicher, zum Beispiel bei Datenbankfiles.
+</td>
+</tr>
+<tr>
+<td colspan="3">
+<input type="hidden" name="save" value="save">
+<input type="submit" value="Einstellungen speichern">
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+</form>
+
+<!-- <a id="btnlogs" data-role="button" href="/admin/system/tools/logfile.cgi?logfile=plugins/lbbackup/raspiBackup.log&header=html&format=template" target="_blank" data-inline="true" data-mini="true" data-icon="arrow-d">Logdatei öffnen</a> -->
+
+
+</center>
+<script>
+
+// Get numbers of raspiBackup PIDs every 5 seconds and update submit button status
+setInterval(function() {
+  // method to be executed;
+getText('<TMPL_VAR NAME=CHECKPIDURL>', mycallback); //passing mycallback as a method  
+}, 5000);
+
+getText = function(url, callback) // How can I use this callback?
+{
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function()
+    {
+        if (request.readyState == 4 && request.status == 200)
+        {
+            callback(request.responseText); // Another callback here
+        }
+    }; 
+    request.open('GET', url);
+    request.send();
+}
+
+function mycallback(data) {
+   // alert(data);
+   if (data != "0\n")
+	{ $("#jit_submit").prop("disabled",true);
+	  $("#jit_submit").val("Backup läuft...").button("refresh");
+	}
+	else {
+	  $("#jit_submit").prop("disabled",false);
+	  $("#jit_submit").val("Backup jetzt starten!").button("refresh");
+	}
+}
+
+$("#jit_submit").click(function(){
+	$("form#main_form").submit();
+
+
+});
+
+</script>
