@@ -53,7 +53,8 @@ fi
 if [ -z "$UPGRADE" ]; then
 	. $LBHOMEDIR/libs/bashlib/notify.sh
 	notify $3 Update "LoxBerry Backup changed the schedule system. Please reconfigure the schedules of your backups. No more automatic backups will be done otherwise." err
-fi
+	echo "<WARNING> LoxBerry Backup changed the schedule system. Please reconfigure the schedules of your backups. No more automatic backups will be done otherwise."
+	fi
 
 # Exit with Status 0
 exit 0
