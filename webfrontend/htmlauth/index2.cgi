@@ -641,6 +641,36 @@ sub ajax
 			print "Directory does not exist (but value was saved).";
 		}
 	}
+	
+	if ($R::action eq "runbackup") {
+		system("$lbpbindir/runbackup.pl > /dev/null 2>&1 &");
+		my $exitcode = $? >> 8;
+		if ($exitcode != 0) {
+			print $cgi->header(-status => "500 Error starting backup");
+		} else {
+			print $cgi->header(-status => "204 Backup successfully started");
+		}
+		# my $pid = fork();
+		# die "Fork failed: $!" if !defined $pid;
+		# if ($pid == 0) {
+			# # do this in the child
+			# print STDERR "---> Backup process forked.\n";
+			# open STDIN, "</dev/null";
+			# open STDOUT, ">/dev/null";
+			# open STDERR, ">/dev/null";
+			# if (system("$filename &") == 0) {
+				# print STDERR "---> Backup command started.";
+			# } else {
+				# print STDERR "---> Backup command returned ERROR.";
+			# };
+		# }
+	
+	
+	
+	}
+	
+	
+	
 	exit;
 
 }

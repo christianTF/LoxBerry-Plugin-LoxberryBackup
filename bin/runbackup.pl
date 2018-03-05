@@ -152,10 +152,12 @@ sub email_params
 
 sub servicelist
 {
-	my (@stop_services_array) = $p{'CONFIG.STOPSERVICES'};
+	my (@stop_services_array) = $pcfg->param('CONFIG.STOPSERVICES');
+	
+	#print "Services array: " . $p{'CONFIG.STOPSERVICES'} . "\n";
 	# print STDERR $p{'CONFIG.STOPSERVICES'};
 	#$stop_services_list =~ s/\r//g;
-	#my @stop_services_array = split(/\n/, $stop_services_list);
+	# my @stop_services_array = split(/,/, $stop_services_list);
 	# Remove empty elements
 	# @stop_services_array = grep /\S/, @stop_services_array;
 	
@@ -165,10 +167,11 @@ sub servicelist
 	undef $par_startservices;
 	
 	foreach my $service (@stop_services_array) {
+		# print "Service $service\n";
 		$service = trim($service);
 		if ($service) {
-			$par_stopservices .= "service $service stop &&";
-			$par_startservices .= "service $service start &&";
+			$par_stopservices .= " service $service stop &&";
+			$par_startservices .= " service $service start &&";
 		}
 	}
 	# Remove trailing &&'s, or write : if empty

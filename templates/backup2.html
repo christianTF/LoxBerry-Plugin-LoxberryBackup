@@ -251,9 +251,15 @@ function mycallback(data) {
 }
 
 $("#jit_submit").click(function(){
-	$("form#main_form").submit();
-
-
+	// $("form#main_form").submit();
+	$("#jit_submit").prop("disabled",true);
+	$("#jit_submit").val("Starte Backup...").button("refresh");
+	$.post( "", { action: 'runbackup' })
+	.done(function(res){
+	  $("#jit_submit").prop("disabled",true);
+	  $("#jit_submit").val("Backup läuft...").button("refresh");
+	
+	});
 });
 
 
