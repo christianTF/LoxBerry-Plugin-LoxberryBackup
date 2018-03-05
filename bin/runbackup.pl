@@ -135,17 +135,24 @@ LOGDEB $paramstr;
 LOGINF "Changing to directory $lbplogdir";
 chdir $lbplogdir;
 LOGOK "Starting backup";
-# my $filename = $log->close();
+my $logfh = $log->filehandle;
+print STDERR "@cmd @params\n";
 system(@cmd, @params);
-my $output = qx {@cmd @params};
 my $exitcode = $? >> 8;
-LOGINF $output;
+# Copy logfile to $log object
+if (-e "$lbplogdir/raspiBackup.log") {
+	open ( my $fh, "<", "$lbplogdir/raspiBackup.log" ); 
+	while ( my $line = <$fh> ) {
+		print $logfh $line;
+	}
+	close $fh;
+}
+
 if ($exitcode != 0) {
 	LOGERR "Backup failed with error code $exitcode";
 } else {
 	LOGOK "Backup was successful";
 }
-
 
 my $endtime_hr = currtime('hr');
 my $endtime_iso = currtime('iso');

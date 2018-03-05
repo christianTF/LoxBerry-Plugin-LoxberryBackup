@@ -256,18 +256,18 @@ if (is_enabled($p->{"CONFIG.NOTIFY_BACKUP_ERRORS"})) {
 }
 
 my $email_notification_html = checkbox(-name => 'email_notification',
-								  -checked => $p->{'CONFIG.EMAIL_NOTIFICATION'},
+								  -checked => is_enabled($p->{'CONFIG.EMAIL_NOTIFICATION'}),
 									-value => 1,
-									-label => $L{'BACKUP.LABEL_TRADITIONAL_EMAIL'},
+									-label => $L{'BACKUP.OPTION_TRADITIONAL_EMAIL'},
 								);
 $maintemplate->param( EMAIL_NOTIFICATION => $email_notification_html);
 
 my $fake_backup_html = checkbox(-name => 'fake_backup',
-  -checked => $p->{'CONFIG.FAKE_BACKUP'},
+  -checked => is_enabled($p->{'CONFIG.FAKE_BACKUP'}),
 	-value => 1,
 	-label => $L{'BACKUP.OPTION_FAKE_BACKUP'},
 );
-$maintemplate->param( FAKE_BACKUP => $fake_backup_html);
+$maintemplate->param( 'FAKE_BACKUP' => $fake_backup_html);
 									
 my @stop_services_array = $pcfg->param("CONFIG.STOPSERVICES");
 if (@stop_services_array) {
@@ -408,7 +408,7 @@ sub installcrontab
 	if (! -e $crontabtmp) {
 		return (0);
 	}
-	qx ( sudo $lbhomedir/sbin/installcrontab.sh $lbpplugindir $crontabtmp );
+	qx ( $lbhomedir/sbin/installcrontab.sh $lbpplugindir $crontabtmp );
 	if ($!) {
 		print $cgi->header(-status => "500 Error activating new crontab");
 		return(0);
