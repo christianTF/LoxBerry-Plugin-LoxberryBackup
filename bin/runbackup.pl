@@ -8,6 +8,9 @@ use strict;
 
 my $type;
 
+# $LoxBerry::System::DEBUG=1;
+
+
 # -----------------------------------------------------------
 # Init logfile
 # -----------------------------------------------------------
@@ -21,6 +24,8 @@ LOGSTART "LoxBerry Backup";
 
 my $cgi = CGI->new;
 $cgi->import_names('R');
+$R::scheduled if (1);
+
 
 my $pcfg = new Config::Simple("$lbpconfigdir/lbbackup.cfg");
 if (! defined $pcfg) {
@@ -44,11 +49,30 @@ if (! is_enabled($R::scheduled)) {
 	LOGINF "* JIT Destination is set to $dest" if ($dest); 
 }
 
+# Locking
+if ($jit) {
+	LOGINF "Prepare JIT lock";
+	my $status = LoxBerry::System::lock(lockfile => 'lbbackup');
+	if ($status) {
+		LOGCRIT "LoxBerry Backup is locked. It seems that another backup is running. Exiting.";
+		exit(1);
+	}
+} else {
+	LOGINF "Prepare schedule lock";
+	my $status;
+	for (my $x = 0; $x < 120; $x++) {
+		$status = LoxBerry::System::lock(lockfile => 'lbbackup', wait => 180);
+		last if (! $status);
+		LOGINF "Lock lbbackup - Try $x of 120 (3 minutes each). Further waiting";
+	}
+	if ($status) {
+		LOGCRIT "Could not lock LoxBerry Backup after 120 tries (3 min. each) . It seems that another backup is running. Giving up.";
+		exit (1);
+	}
+}
 
-
-
-
-
+my $starttime_hr = currtime('hr');
+my $starttime_iso = currtime('iso');
 
 # -----------------------------------------------------------
 # Check options
@@ -100,6 +124,7 @@ my $paramstr;
 foreach (@params) {
 	$paramstr .= $_ . " ";
 }
+
 LOGDEB $paramstr;
 
 
@@ -110,24 +135,65 @@ LOGDEB $paramstr;
 LOGINF "Changing to directory $lbplogdir";
 chdir $lbplogdir;
 LOGOK "Starting backup";
+# my $filename = $log->close();
 system(@cmd, @params);
+my $output = qx {@cmd @params};
 my $exitcode = $? >> 8;
+LOGINF $output;
 if ($exitcode != 0) {
 	LOGERR "Backup failed with error code $exitcode";
 } else {
 	LOGOK "Backup was successful";
 }
 
+
+my $endtime_hr = currtime('hr');
+my $endtime_iso = currtime('iso');
+
+my $runtime_str = "Backup started at " . $starttime_hr . " and finished at " . $endtime_hr;
+LOGINF $runtime_str;
+
 my %folderinfo = LoxBerry::System::diskspaceinfo($dest);
 
 #$folderinfo{size}
 
- 
-LOGINF "Disk space info on $dest";
-LOGINF "$folderinfo{filesystem} ($folderinfo{mountpoint}) | Size: " . formatSize(1024*$folderinfo{size}) . " | Used: " . formatSize(1024*$folderinfo{used}) . " | Free: " . formatSize(1024*$folderinfo{available});
-
+my $diskspaceinfo; 
+$diskspaceinfo = "Disk space info on $dest\n";
+$diskspaceinfo .= "$folderinfo{filesystem} ($folderinfo{mountpoint}) | Size: " . formatSize(1024*$folderinfo{size}) . " | Used: " . formatSize(1024*$folderinfo{used}) . " | Free: " . formatSize(1024*$folderinfo{available});
+LOGINF $diskspaceinfo;
 
 print STDERR "Logfile-Name is " . $log->filename() . "\n";
+
+# -----------------------------------------------------------
+# LoxBerry Notify
+# -----------------------------------------------------------
+
+my %notification = (
+            PACKAGE => $lbpplugindir,                    # Mandatory
+            NAME => "backup",                            # Mandatory        
+            LOGFILE => $log->filename
+    );
+
+
+
+if ($exitcode == 0) {
+	$notification{'MESSAGE'} = "LoxBerry Backup has successfully finished.\n";
+	$notification{'SEVERITY'} = 6;
+} 
+if ($exitcode != 0) {
+	$notification{'MESSAGE'} = "LoxBerry Backup finished with error. See the logfile for details.\n";
+	$notification{'SEVERITY'} = 3;
+} 
+
+$notification{'MESSAGE'} .= $runtime_str . "\n" . $diskspaceinfo;
+
+if (is_enabled($p{'CONFIG.NOTIFY_BACKUP_INFOS'}) && $exitcode == 0 || 
+	is_enabled($p{'CONFIG.NOTIFY_BACKUP_ERRORS'}) && $exitcode != 0 ) {
+	LoxBerry::Log::notify_ext( \%notification );
+}
+
+LoxBerry::System::unlock(lockfile => 'lbbackup');
+
 exit;
 		
 
