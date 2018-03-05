@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Bashscript which is executed by bash *AFTER* complete installation is done
 # (but *BEFORE* postupdate). Use with caution and remember, that all systems
@@ -31,6 +31,28 @@ ARGV5=$5 # Fifth argument is Base folder of LoxBerry
 if [ ! -e REPLACELBPLOGDIR ]; then
 	echo "<INFO> Creating log directory REPLACELBPLOGDIR"
 	mkdir -p REPLACELBPLOGDIR
+fi
+
+if [ -e "$LBHOMEDIR/system/cron/cron.daily/$2*" ]; then
+	rm -f $LBHOMEDIR/system/cron/cron.daily/$2*
+	UPGRADE=1
+fi
+if [ -e "$LBHOMEDIR/system/cron/cron.weekly/$2*" ]; then
+	rm -f $LBHOMEDIR/system/cron/cron.weekly/$2*
+	UPGRADE=1
+fi
+if [ -e "$LBHOMEDIR/system/cron/cron.monthly/$2*" ]; then
+	rm -f $LBHOMEDIR/system/cron/cron.monthly/$2*
+	UPGRADE=1
+fi
+if [ -e "$LBHOMEDIR/system/cron/cron.yearly/$2*" ]; then
+	rm -f $LBHOMEDIR/system/cron/cron.yearly/$2*
+	UPGRADE=1
+fi
+
+if [ -z "$UPGRADE" ]; then
+	. $LBHOMEDIR/libs/bashlib/notify.sh
+	notify $3 Update "LoxBerry Backup changed the schedule system. Please reconfigure the schedules of your backups. No more automatic backups will be done otherwise." err
 fi
 
 # Exit with Status 0

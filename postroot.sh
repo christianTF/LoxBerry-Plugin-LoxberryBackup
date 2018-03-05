@@ -21,4 +21,8 @@ if [ ! -d "/backup" ]; then
 	chown loxberry:loxberry /backup 
 fi
 
+if [ -e "$LBHOMEDIR/system/cron/cron.d/$2" ]; then
+	chown root:root $LBHOMEDIR/system/cron/cron.d/$2
+fi
+
 exit 0
