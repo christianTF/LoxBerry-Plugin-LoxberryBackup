@@ -133,14 +133,7 @@ $pcfg->param("TGZ.RETENTION", "3") if (! $pcfg->param("TGZ.RETENTION"));
 
 $pcfg->param("JITBACKUP.TYPE", "DDZ") if (! $pcfg->param("JITBACKUP.TYPE"));
 
-# $pcfg->param("CONFIG.EMAIL_NOTIFICATION", "0") if (is_disabled($pcfg->param("CONFIG.EMAIL_NOTIFICATION")));
-# $pcfg->param("CONFIG.FAKE_BACKUP", "0") if (! is_disabled($pcfg->param("CONFIG.FAKE_BACKUP"))); 
-
-
 my $p = $pcfg->vars();
-
-
-
 
 ##########################################################################
 # Template and language settings
@@ -180,11 +173,9 @@ $navbar{1}{URL} = 'index.cgi';
 $navbar{1}{Notify_Package} = $lbpplugindir;
 # $navbar{1}{Notify_NAme} = 'daemon';
  
-$navbar{2}{Name} = "Logfile";
+$navbar{2}{Name} = $L{'COMMON.LOGFILE'};
 $navbar{2}{URL} = "/admin/system/tools/logfile.cgi?logfile=plugins/$lbpplugindir/raspiBackup.log&header=html&format=template";
 $navbar{2}{target} = "_blank";
-# $navbar{1}{Notify_Package} = $lbpplugindir;
-# $navbar{1}{Notify_NAme} = 'cronjob';
  
 $navbar{1}{active} = 1;
 
@@ -196,7 +187,6 @@ $navbar{1}{active} = 1;
 # As an example: we create some vars for the template
 ###
 $maintemplate->param( PLUGINNAME => 'LoxBerry Backup' );
-
 
 my %jittypelabels;
 foreach my $type (@backuptypes) {
@@ -246,15 +236,8 @@ foreach my $type (@backuptypes) {
 			$val{'SELECTED_DISABLED'} = "selected";
 		}
 		#print STDERR "$type Event: " . $event->hour . " hr / " . $event->dom()  . " day\n";
-	
-	
-	
 	}
 	
-	
-	
-	
-	# $val{'SCHEDULE_TIMEBASE'} = 
 	push @backupselection, \%val;
 
 }
@@ -275,14 +258,14 @@ if (is_enabled($p->{"CONFIG.NOTIFY_BACKUP_ERRORS"})) {
 my $email_notification_html = checkbox(-name => 'email_notification',
 								  -checked => $p->{'CONFIG.EMAIL_NOTIFICATION'},
 									-value => 1,
-									-label => 'E-Mail Benachrichtigung',
+									-label => $L{'BACKUP.LABEL_TRADITIONAL_EMAIL'},
 								);
 $maintemplate->param( EMAIL_NOTIFICATION => $email_notification_html);
 
 my $fake_backup_html = checkbox(-name => 'fake_backup',
   -checked => $p->{'CONFIG.FAKE_BACKUP'},
 	-value => 1,
-	-label => 'FAKE Backup',
+	-label => $L{'BACKUP.OPTION_FAKE_BACKUP'},
 );
 $maintemplate->param( FAKE_BACKUP => $fake_backup_html);
 									
@@ -307,234 +290,9 @@ LoxBerry::Web::lbfooter();
 
 exit;
 
-# ##########################################################################
-# # Save data
-# ##########################################################################
-# sub save 
-# {
-	
-	# my $notify_infos = is_enabled($R::NOTIFY_BACKUP_INFOS) ? "on" : "off";
-	# my $notify_errors = is_enabled($R::NOTIFY_BACKUP_ERRORS) ? "on" : "off";
-	
-	# my $email_notification = $R::email_notification ? "1" : "0";
-	# my $fake_backup = $R::fake_backup ? "1" : "0";
-	
-	# print STDERR "Notify_infos: $notify_infos / Notify_errors: $notify_errors\n";
-	
-	# # Write schedules to config if it appears in the possible schedule list
-	# my @schedules = qw ( off daily weekly monthly yearly );
-
-	# if ( $R::ddcron ~~ @schedules ) {
-		# $pcfg->param("DD.SCHEDULE", $R::ddcron);
-	# } else {
-		# $pcfg->param("DD.SCHEDULE", "off");
-	# }
-	
-	# if ( $R::rsynccron ~~ @schedules ) {
-		# $pcfg->param("RSYNC.SCHEDULE", $R::rsynccron);
-	# } else {
-		# $pcfg->param("RSYNC.SCHEDULE", "off");
-	# }
-	# if ( $R::tgzcron ~~ @schedules ) {
-		# $pcfg->param("TGZ.SCHEDULE", $R::tgzcron);
-	# } else {
-		# $pcfg->param("TGZ.SCHEDULE", "off");
-	# }
-	
-	# $pcfg->param("DD.DESTINATION", $R::ddcron_destination);
-	# $pcfg->param("RSYNC.DESTINATION", $R::rsynccron_destination);
-	# $pcfg->param("TGZ.DESTINATION", $R::tgzcron_destination);
-	
-	# $pcfg->param("DD.RETENTION", $R::ddcron_retention);
-	# $pcfg->param("RSYNC.RETENTION", $R::rsynccron_retention);
-	# $pcfg->param("TGZ.RETENTION", $R::tgzcron_retention);
-
-	# $pcfg->param("CONFIG.NOTIFY_BACKUP_INFOS", $notify_infos);
-	# $pcfg->param("CONFIG.NOTIFY_BACKUP_ERRORS", $notify_errors);
-	
-	# $pcfg->param("CONFIG.EMAIL_NOTIFICATION", $email_notification);
-	# $pcfg->param("CONFIG.FAKE_BACKUP", $fake_backup);
-		
-	# # Stop services
-	# my $stop_services_list = $R::stop_services;
-	# $stop_services_list =~ s/\r//g;
-	# my @stop_services_array = split(/\n/, $stop_services_list);
-	# # Remove empty elements
-	# @stop_services_array = grep /\S/, @stop_services_array;
-	# print STDERR "STOP SERVICES ARRAY: @stop_services_array\n";
-	
-	# $pcfg->param("CONFIG.STOPSERVICES" , \@stop_services_array);
-		
-	# $pcfg->write();
-	
-	# # Unlink all cron jobs
-	
-	# foreach my $currtype (@backuptypes) {
-		# print STDERR "Deleting cronjobs for ${lbpplugindir}_$currtype\n";
-		# unlink ("$lbhomedir/system/cron/cron.daily/${lbpplugindir}_$currtype");
-		# unlink ("$lbhomedir/system/cron/cron.weekly/${lbpplugindir}_$currtype");
-		# unlink ("$lbhomedir/system/cron/cron.monthly/${lbpplugindir}_$currtype");
-		# unlink ("$lbhomedir/system/cron/cron.yearly/${lbpplugindir}_$currtype");
-	# }
-	
-	# ### Create new cronjobs
-	
-	# foreach my $service (@stop_services_array) {
-		# $service = trim($service);
-		# if ($service ne "") {
-			# $par_stopservices .= "service $service stop && ";
-			# $par_startservices .= "service $service start && ";
-		# }
-	# }
-	# # Remove trailing &&'s, or write : if empty
-	# $par_stopservices = $par_stopservices ne "" ? substr ($par_stopservices, 0, -3) : ":";
-	# $par_startservices = $par_startservices ne "" ? substr ($par_startservices, 0, -3) : ":";
-	
-	# $mail_params = email_params();
-
-	# my $notifyscript = qq(
-# if [ "\$?" = "0" ]; then
-	# notify_ext PACKAGE=$lbpplugindir NAME=backup MESSAGE="LoxBerry Backup: The last scheduled backup has successfully finished." SEVERITY=6 LOGFILE=plugins/$lbpplugindir/raspiBackup.log
-# else
-	# notify_ext PACKAGE=lbupdate NAME=backup MESSAGE="LoxBerry Backup: ERROR creating the last scheduled backup. See the logfile for more information." SEVERITY=3 LOGFILE=plugins/$lbpplugindir/raspiBackup.log
-# fi
-# );
-
-	# get_raspibackup_command();
-
-	# if ($R::ddcron ne "off") {
-		# my $filename = "$lbhomedir/system/cron/cron." . $R::ddcron . "/${lbpplugindir}_DD";
-		# unless(open FILE, '>'.$filename) {
-			# $errormsg = "Cron job for DD backup - Cannot create file $filename";
-			# print STDERR "$errormsg\n";
-		# }
-		# print FILE "#!/bin/bash\n";
-		# print FILE ". $lbhomedir/libs/bashlib/notify.sh\n";
-		# print FILE "cd $lbplogdir\n";
-		# print FILE $dd_backup_command;
-		# print FILE $notifyscript;
-		# close FILE;
-		# chmod 0775, $filename;
-	# }
-		
-	# if ($R::tgzcron ne "off") {
-		# my $filename = "$lbhomedir/system/cron/cron." . $R::tgzcron . "/${lbpplugindir}_TGZ";
-		# unless(open FILE, '>'.$filename) {
-			# $errormsg = "Cron job for TGZ backup - Cannot create file $filename";
-			# print STDERR "$errormsg\n";
-		# }
-		# print FILE "#!/bin/bash\n";
-		# print FILE ". $lbhomedir/libs/bashlib/notify.sh\n";
-		# print FILE "cd $lbplogdir\n";
-		# print FILE $tgz_backup_command;
-		# print FILE $notifyscript;
-		# close FILE;
-		# chmod 0775, $filename;
-	# }
-	
-	# if ($R::rsynccron ne "off") {
-		# my $filename = "$lbhomedir/system/cron/cron." . $R::rsynccron . "/${lbpplugindir}_RSYNC";
-		# unless(open FILE, '>'.$filename) {
-			# $errormsg = "Cron job for RSYNC backup - Cannot create file $filename";
-			# print STDERR "$errormsg\n";
-		# }
-		# print FILE "#!/bin/bash\n";
-		# print FILE ". $lbhomedir/libs/bashlib/notify.sh\n";
-		# print FILE "cd $lbplogdir\n";
-		# print FILE $rsync_backup_command;
-		# print FILE $notifyscript;
-		# close FILE;
-		# chmod 0775, $filename;
-	# }
-	
-# }
-
 ##########################################################################
-# Just-In-Time Backup
+# AJAX routines
 ##########################################################################
-sub jit_backup
-{
-	my $datestring = localtime();
-	print STDERR "==== JIT-Backup started! == ($datestring) ==\n";
-	
-	$pcfg->param('CONFIG.JITDESTINATION', $R::jit_destination);
-	$pcfg->write();
-	
-	
-	my $backuptype = $cgi->param("jit-backup-type");
-	
-	## Email notification
-	my $email_notification = defined $pcfg->param('email_notification') ? "1" : "0";
-	my $email_params = email_params();
-
-	## Create start/stop options for services
-	my $stop_services_list = $R::stop_services;
-	$stop_services_list =~ s/\r//g;
-	my @stop_services_array = split(/\n/, $stop_services_list);
-	# Remove empty elements
-	@stop_services_array = grep /\S/, @stop_services_array;
-	
-	undef $par_stopservices;
-	undef $par_startservices;
-	
-	foreach my $service (@stop_services_array) {
-		$service = trim($service);
-		if ($service ne "") {
-			$par_stopservices .= "service $service stop &&";
-			$par_startservices .= "service $service start &&";
-		}
-	}
-	# Remove trailing &&'s, or write : if empty
-	$par_stopservices = $par_stopservices ne "" ? substr ($par_stopservices, 0, -3) : ":";
-	$par_startservices = $par_startservices ne "" ? substr ($par_startservices, 0, -3) : ":";
-
-	## Get the highest retention number
-	my $jit_retention;
-	$jit_retention = 10;
-	print STDERR "JIT Retention number (max) was identified as $jit_retention.\n";
-
-	my $notifyscript = qq(
-if [ "\$?" = "0" ]; then
-	notify_ext PACKAGE=$lbpplugindir NAME=backup _ISPLUGIN=1 MESSAGE="LoxBerry Backup: The last scheduled backup has successfully finished." SEVERITY=6 LOGFILE=$lbplogdir/raspiBackup.log
-else
-	notify_ext PACKAGE=lbupdate NAME=backup _ISPLUGIN=1 MESSAGE="LoxBerry Backup: ERROR creating the last scheduled backup. See the logfile for more information." SEVERITY=3 LOGFILE=$lbplogdir/raspiBackup.log
-fi
-);
-
-	get_raspibackup_command($R::jit_destination, $jit_retention);
-	
-	my $filename = "$lbpdatadir/jit_backup";
-	unless(open FILE, '>'.$filename) {
-		$errormsg = "JIT backup job for $backuptype backup - Cannot create file $filename";
-		print STDERR "$errormsg\n";
-	}
-	print FILE "#!/bin/bash\n";
-	print FILE ". $lbhomedir/libs/bashlib/notify.sh\n";
-	print FILE "cd $lbplogdir\n";
-	if ($backuptype eq "DD") { print FILE $dd_backup_command; }
-	elsif ($backuptype eq "TGZ") { print FILE $tgz_backup_command; }
-	elsif ($backuptype eq "RSYNC") { print FILE $rsync_backup_command; }
-	print FILE "$notifyscript";
-	close FILE;
-	chmod 0775, $filename;
-	
-	my $pid = fork();
-	die "Fork failed: $!" if !defined $pid;
-	if ($pid == 0) {
-			 # do this in the child
-			 print STDERR "---> Backup process forked.\n";
-			 open STDIN, "</dev/null";
-			 open STDOUT, ">/dev/null";
-			 open STDERR, ">/dev/null";
-			 if (system("$filename &") == 0) {
-			 print STDERR "---> Backup command started.";
-			 } else {
-			 print STDERR "---> Backup command returned ERROR.";
-			 };
-	}
-	return;
-}
-
 sub ajax
 {
 
@@ -601,17 +359,6 @@ sub ajax
 			print $cgi->header(-status => "204 Written new crontab");
 		}
 
-		# # Schedule was changed
-		# eval {
-			# $pcfg->param($R::key . ".PERIOD", $R::period);
-			# $pcfg->param($R::key . ".TIMEBASE", $R::timebase);
-			# $pcfg->write;
-		# };
-		# if ($@) {
-			# print $cgi->header(-status => "500 Error writing plugin config");
-		# }
-			
-		# print $cgi->header(-status => "204 OK");
 		exit;
 	}
 	if ($R::action eq "changeconfig" && $R::key) 
@@ -638,7 +385,8 @@ sub ajax
 		
 		
 		if ($tmp_key[1] && $tmp_key[1] eq "DESTINATION" && ! -d $R::value) {
-			print "Directory does not exist (but value was saved).";
+			%L = LoxBerry::System::readlanguage(undef, "language.ini");
+			print $L{'BACKUP.HINT_DEST_DOES_NOT_EXIST'};
 		}
 	}
 	
@@ -650,29 +398,9 @@ sub ajax
 		} else {
 			print $cgi->header(-status => "204 Backup successfully started");
 		}
-		# my $pid = fork();
-		# die "Fork failed: $!" if !defined $pid;
-		# if ($pid == 0) {
-			# # do this in the child
-			# print STDERR "---> Backup process forked.\n";
-			# open STDIN, "</dev/null";
-			# open STDOUT, ">/dev/null";
-			# open STDERR, ">/dev/null";
-			# if (system("$filename &") == 0) {
-				# print STDERR "---> Backup command started.";
-			# } else {
-				# print STDERR "---> Backup command returned ERROR.";
-			# };
-		# }
-	
-	
-	
 	}
-	
-	
-	
-	exit;
 
+	exit;
 }
 
 sub installcrontab

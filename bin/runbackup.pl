@@ -170,7 +170,7 @@ print STDERR "Logfile-Name is " . $log->filename() . "\n";
 
 my %notification = (
             PACKAGE => $lbpplugindir,                    # Mandatory
-            NAME => "backup",                            # Mandatory        
+            NAME => "Backup",                            # Mandatory        
             LOGFILE => $log->filename
     );
 
