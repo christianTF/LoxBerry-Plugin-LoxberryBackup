@@ -85,6 +85,8 @@ if (! defined $pcfg) {
 	$pcfg = new Config::Simple("$lbpconfigdir/lbbackup.cfg");
 }
 
+$pcfg->autosave(1);
+
 ##########################################################################
 # Read crontab
 ##########################################################################
@@ -121,13 +123,13 @@ print STDERR "========== LoxBerry Backup Version $pluginversion === ($datestring
 
 # Set default parameters
 
-# $pcfg->param("CONFIG.JITDESTINATION", "/backup") if (! $pcfg->param("CONFIG.JITDESTINATION"));
+$pcfg->param("JITBACKUP.DESTINATION", "/backup") if (! $pcfg->param("JITBACKUP.DESTINATION"));
 
-$pcfg->param("DD.DESTINATION", "/backup") if (! $pcfg->param("DD.DESTINATION"));  
+$pcfg->param("DDZ.DESTINATION", "/backup") if (! $pcfg->param("DD.DESTINATION"));  
 $pcfg->param("RSYNC.DESTINATION", "/backup") if (! $pcfg->param("RSYNC.DESTINATION")); 
 $pcfg->param("TGZ.DESTINATION", "/backup") if (! $pcfg->param("TGZ.DESTINATION"));
 
-$pcfg->param("DD.RETENTION", "3") if (! $pcfg->param("DD.RETENTION"));
+$pcfg->param("DDZ.RETENTION", "3") if (! $pcfg->param("DD.RETENTION"));
 $pcfg->param("RSYNC.RETENTION", "3") if (! $pcfg->param("RSYNC.RETENTION"));
 $pcfg->param("TGZ.RETENTION", "3") if (! $pcfg->param("TGZ.RETENTION"));
 
