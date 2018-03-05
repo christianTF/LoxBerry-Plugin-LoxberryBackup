@@ -15,7 +15,7 @@ my $type;
 # Init logfile
 # -----------------------------------------------------------
 
-my $log = LoxBerry::Log->new ( name => 'backup', stdout => 1 );
+my $log = LoxBerry::Log->new ( package => $lbpplugindir, name => 'backup', stdout => 1 );
 LOGSTART "LoxBerry Backup";
 
 # -----------------------------------------------------------
@@ -25,7 +25,6 @@ LOGSTART "LoxBerry Backup";
 my $cgi = CGI->new;
 $cgi->import_names('R');
 $R::scheduled if (1);
-
 
 my $pcfg = new Config::Simple("$lbpconfigdir/lbbackup.cfg");
 if (! defined $pcfg) {
@@ -98,6 +97,9 @@ my $bc = $pcfg->param(-block => "$R::type");
 # -----------------------------------------------------------
 # Calculate command line
 # -----------------------------------------------------------
+
+my $loglevel = LoxBerry::System::pluginloglevel();
+print "Loglevel is $loglevel\n";
 my @cmd;
 @cmd = ("sudo",  "/usr/local/bin/raspiBackup.sh");
 
@@ -115,6 +117,10 @@ push @params, "-a", "\"$par_startservices\"";
 push @params, "-k", $bc->{'RETENTION'};
 push @params, "-t" , lc($R::type);
 push @params, "-L", "current";
+push @params, "-l", "debug" if ($loglevel == 7);
+push @params, "-m", "minimal" if ($loglevel <= 5);
+push @params, "-m", "detailed" if ($loglevel > 5);
+push @params, "-v" if ($loglevel == 7);
 
 push @params, $dest;
 
