@@ -95,14 +95,14 @@ $crontab->read( -file => "$lbhomedir/system/cron/cron.d/$lbpplugindir" );
 
 print STDERR "Crontab:\n";
 
-foreach my $type (@backuptypes) {
-	my ($comment) = $crontab->select( -type => 'comment', -data => '## Backuptype ' . $type );
-	print STDERR "Comment found\n" if ($comment);
-	my ($block) = $crontab->block($comment) if ($comment);
-	print STDERR "Block found\n" if ($block);
-	my ($event) = $block->select ( -type => 'event' ) if ($block);
-	print STDERR "Event: " . $event->command() . "\n" if ($event);
-}
+# foreach my $type (@backuptypes) {
+	# my ($comment) = $crontab->select( -type => 'comment', -data => '## Backuptype ' . $type );
+	# print STDERR "Comment found\n" if ($comment);
+	# my ($block) = $crontab->block($comment) if ($comment);
+	# print STDERR "Block found\n" if ($block);
+	# my ($event) = $block->select ( -type => 'event' ) if ($block);
+	# print STDERR "Event: " . $event->command() . "\n" if ($event);
+# }
 
 
 # Handle AJAX requests
@@ -224,7 +224,35 @@ foreach my $type (@backuptypes) {
 	$val{'DESTINATION'} = $bc->{DESTINATION};
 	$val{'RETENTION'} = $bc->{RETENTION};
 	
-	$val{'SCHEDULE_TIME'} = $bc->{SCHEDULE_TIME};
+	#$val{'SCHEDULE_TIME'} = $bc->{SCHEDULE_TIME};
+	
+	my ($comment) = $crontab->select( -type => 'comment', -data => '## Backuptype ' . $type );
+	# print STDERR "Comment found\n" if ($comment);
+	my ($block) = $crontab->block($comment) if ($comment);
+	# print STDERR "Block found\n" if ($block);
+	my ($event) = $block->select ( -type => 'event' ) if ($block);
+	#print STDERR "Event: " . $event->command() . "\n" if ($event);
+	if ($event) {
+		my @tmp_days = split(/\//, $event->dom(), 2);
+		my @tmp_hours = split(/\//, $event->hour(), 2);
+		if ($tmp_days[1]) {
+			$val{'SCHEDULE_TIME'} = $tmp_days[1];
+			$val{'SELECTED_DAYS'} = "selected";
+		} elsif ($tmp_hours[1]) {
+			$val{'SCHEDULE_TIME'} = $tmp_hours[1];
+			$val{'SELECTED_HOURS'} = "selected";
+		} else {
+			$val{'SCHEDULE_TIME'} = "0";
+			$val{'SELECTED_DISABLED'} = "selected";
+		}
+		#print STDERR "$type Event: " . $event->hour . " hr / " . $event->dom()  . " day\n";
+	
+	
+	
+	}
+	
+	
+	
 	
 	# $val{'SCHEDULE_TIMEBASE'} = 
 	push @backupselection, \%val;

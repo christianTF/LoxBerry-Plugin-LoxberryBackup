@@ -85,9 +85,9 @@ th, td {
 		
 			<input type="number" min="0" max="999" id="<TMPL_VAR TYPE>_schedule_time" name="<TMPL_VAR TYPE>_schedule_time" value="<TMPL_VAR SCHEDULE_TIME>" data-inline="true" class="interval" >
 			<select name="<TMPL_VAR TYPE>_schedule_timebase" id="<TMPL_VAR TYPE>_schedule_timebase" data-mini="true" data-inline="true">
-				<option value="disabled"><TMPL_VAR COMMON.DISABLED></option>
-				<option value="days"><TMPL_VAR COMMON.DAYS></option>
-				<option value="hours"><TMPL_VAR COMMON.HOURS></option>
+				<option value="disabled" <TMPL_VAR SELECTED_DISABLED>><TMPL_VAR COMMON.DISABLED></option>
+				<option value="days" <TMPL_VAR SELECTED_DAYS>><TMPL_VAR COMMON.DAYS></option>
+				<option value="hours" <TMPL_VAR SELECTED_HOURS>><TMPL_VAR COMMON.HOURS></option>
 			</select>
 			<img src="images/processing.gif" id="<TMPL_VAR TYPE>_schedule_processing" height="50" width="50" style="float:right;display:none;">
 		</div>
