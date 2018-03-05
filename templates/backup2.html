@@ -1,7 +1,7 @@
 <center>
 <p>Das Backup-Tool basiert auf <a href="https://www.linux-tips-and-tricks.de/de/raspibackup" target="_blank" rel="noopener">raspiBackup</a>. Dort gibt es detaillierte Infos zu Backup und Restore.</p>
-<p>Das Backup wird automatisch an den Pfad <b>/backup</b> durchgeführt. Mounte deinen externen Datenträger oder dein Netzwerklaufwerk an den Pfad /backup.</p>
-<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
+<p>Mounte deinen externen Datenträger oder dein Netzwerklaufwerk an den angegebenen Backup-Pfad.</p>
+<form>
 <!-- <form method="post" data-ajax="false" name="cti_form" id="cti_form" action="./index.cgi"> -->
 <style>
 th, td {
@@ -10,25 +10,30 @@ th, td {
 }
 </style>
 
-
+<p  class="wide">Sofortiges Backup</p>
 <table style="border-collapse:collapse;" border="0" width="80%">
 <tbody>
 <tr>
 <td>
-<fieldset data-role="controlgroup">
+<!-- 
+<fieldset data-role="controlgroup" id="jittype">
 	   	<legend>Backup-Typ auswählen:</legend>
-		<input type="radio" name="jit-backup-type" id="jit-backup-type-1" value="DD" checked="checked" >
-     	<label for="jit-backup-type-1">DD (gezippt)</label>
-     	<input type="radio" name="jit-backup-type" id="jit-backup-type-2" value="TGZ"  >
-     	<label for="jit-backup-type-2">TGZ</label>
-     	<input type="radio" name="jit-backup-type" id="jit-backup-type-3" value="RSYNC"  >
-     	<label for="jit-backup-type-3">RSYNC</label>
-</fieldset>
+		<input type="radio" name="jitbackuptype" id="jitbackuptype-DDZ" value="DDZ">
+     	<label for="jitbackuptype-DDZ">DD (gezippt)</label>
+     	<input type="radio" name="jitbackuptype" id="jitbackuptype-TGZ" value="TGZ">
+     	<label for="jitbackuptype-TGZ">TGZ</label>
+     	<input type="radio" name="jitbackuptype" id="jitbackuptype-RSYNC" value="RSYNC">
+     	<label for="jitbackuptype-RSYNC">RSYNC</label>
+</fieldset> 
+-->
+	<fieldset data-role="controlgroup" id="jittype">
+		<TMPL_VAR JITTYPE>
+	</fieldset> 
 </td>
 <td>
 <div>
 	<label for="jit_destination">Backup-Ziel</label>
-	<input id="jit_destination" name="jit_destination" min="0" max="100" value="<TMPL_VAR CONFIG.JITDESTINATION>">
+	<input id="jit_destination" name="jit_destination" min="0" max="100" value="<TMPL_VAR JITBACKUP.DESTINATION>">
 </div>
 <div>
 	<input type="hidden" name="jit_backup" value="jit_backup">
@@ -40,54 +45,68 @@ th, td {
 </table>
 <!-- </form>  -->
 
-<h2>Zeitplan</h2>
+<style>
+
+.schedule .ui-input-text {
+    width: 100px !important;
+	float: left;
+}
+
+
+
+
+</style>
+
+
+
+<p  class="wide">Zeitplan</p>
 <!-- <form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi"> -->
 <table class="ui-widget" style="border-collapse:collapse;"  border="1" width="95%">
 <!-- <table style="border-color: grey; margin-left: auto; margin-right: auto;" border="1" width="80%"> -->
 <!-- <table id="jit-table" data-role="table" > -->
 <thead>
 <tr>
-<th style="width:25%">Backup-Typ</th>
-<th>Zeitplan</th>
+<th >Zeitplan</th>
 <th>Backup-Ziel</th>
-<th style="width:15%">Aufbewahrte Sicherungen</th>
+<th style="width:20%">Aufbewahrte Sicherungen</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td>
-<p>Komprimiertes Image Backup (dd gezippt)</p>
-</td>
-<td>
-<fieldset data-role="controlgroup" data-mini="true">
-<TMPL_VAR NAME=DD_RADIO_GROUP>
-</fieldset>
-</td>
-<td><input id="ddcron_destination" name="ddcron_destination" value="<TMPL_VAR NAME=DD.DESTINATION>"></td>
-<td><input id="ddcron_retention" name="ddcron_retention" min="0" max="100" type="number" value="<TMPL_VAR NAME=DD.RETENTION>" style="max-width:50px;">
-<label for="ddcron_retention">Backups</label></td>
+<TMPL_LOOP BACKUPSELECTION>
+	<tr>
+	<td colspan="3" style="background-color:#D7E8C2;">
+		<h3><TMPL_VAR LABEL></h3>
+	</td>
+	<tr>
+	<tr>
+	<td>
+		Enter the time plan
+		<div data-role="fieldcontain" class="schedule" name="<TMPL_VAR TYPE>_1" id="<TMPL_VAR TYPE>_1" data-key="<TMPL_VAR TYPE>">
+		
+			<input type="number" min="0" max="999" id="<TMPL_VAR TYPE>_schedule_time" name="<TMPL_VAR TYPE>_schedule_time" value="<TMPL_VAR SCHEDULE_TIME>" data-inline="true" class="interval" >
+			<select name="<TMPL_VAR TYPE>_schedule_timebase" id="<TMPL_VAR TYPE>_schedule_timebase" data-mini="true" data-inline="true">
+				<option value="disabled"><TMPL_VAR COMMON.DISABLED></option>
+				<option value="days"><TMPL_VAR COMMON.DAYS></option>
+				<option value="hours"><TMPL_VAR COMMON.HOURS></option>
+			</select>
+			<img src="images/processing.gif" id="<TMPL_VAR TYPE>_schedule_processing" height="50" width="50" style="float:right;display:none;">
+		</div>
+		<p id="<TMPL_VAR TYPE>_schedule_selected"></p>
+	</td>
+	<td>
+		<label for="<TMPL_VAR TYPE>cron_destination">Enter destination path</label>
+		<input id="<TMPL_VAR TYPE>cron_destination" name="<TMPL_VAR TYPE>cron_destination" value="<TMPL_VAR DESTINATION>" class="path" data-key="<TMPL_VAR TYPE>"></td>
+	<td>
+		
+		<label for="<TMPL_VAR TYPE>cron_retention">Keep number of backups</label>
+		<input id="<TMPL_VAR TYPE>cron_retention" name="<TMPL_VAR TYPE>cron_retention" min="0" max="100" type="number" value="<TMPL_VAR RETENTION>" class="retention" data-key="<TMPL_VAR TYPE>">
+	</td>
 </tr>
+</TMPL_LOOP>
 <tr>
-<td>Dateibasiertes Backup (rsync)</td>
-<td>
-<fieldset data-role="controlgroup" data-mini="true">
-<TMPL_VAR NAME=RSYNC_RADIO_GROUP>
-</fieldset>
+<td colspan="3" style="background-color:#EAEA69;">
+		<h3><TMPL_VAR COMMON.FURTHER_SETTINGS></h3>
 </td>
-<td><input id="rsynccron_destination" name="rsynccron_destination" value="<TMPL_VAR NAME=RSYNC.DESTINATION>"></td>
-<td><input id="rsynccron_retention" name="rsynccron_retention"  min="0" max="100" type="number" value="<TMPL_VAR NAME=RSYNC.RETENTION>" style="max-width:50px;">
-<label for="ddcron_retention">Backups</label></td>
-</tr>
-<tr>
-<td>Dateibasiertes, komprimiertes Backup (tgz)</td>
-<td>
-<fieldset data-role="controlgroup" data-mini="true">
-<TMPL_VAR NAME=TGZ_RADIO_GROUP>
-</fieldset>
-</td>
-<td><input id="tgzcron_destination" name="tgzcron_destination" value="<TMPL_VAR NAME=TGZ.DESTINATION>"></td>
-<td><input id="tgzcron_retention" name="tgzcron_retention" min="0" max="100" type="number" value="<TMPL_VAR NAME=TGZ.RETENTION>" style="max-width:50px;"><label for="ddcron_retention">Backups</label></td>
-
 </tr>
 <tr>
 <td>
@@ -111,9 +130,6 @@ Backup-Benachrichtigung
 	</td>
 	<td colspan="2" class="hint">Stelle ein, in welchen Situationen du nach einem Backup benachrichtigt werden möchtest.</td>
 </tr>
-
-
-
 <tr>
 <td>
 Traditionelle E-Mail Benachrichtigung
@@ -122,7 +138,6 @@ Traditionelle E-Mail Benachrichtigung
 	</td>
 	<td colspan="2" class="hint">Die traditionelle E-Mail-Benachrichtigung von raspiBackup verwenden. Es macht keinen Sinn, diese Option zu aktivieren, wenn du bereits die Backup-Benachrichtigung aktiviert hast.</td>
 </tr>
-
 <tr>
 <td>Folgende Dienste beenden und starten
 </td>
@@ -135,19 +150,27 @@ Traditionelle E-Mail Benachrichtigung
 <tr>
 <td colspan="3">
 <input type="hidden" name="save" value="save">
-<input type="submit" value="Einstellungen speichern">
 </td>
 </tr>
 </tbody>
 </table>
 <br>
 </form>
-
-<!-- <a id="btnlogs" data-role="button" href="/admin/system/tools/logfile.cgi?logfile=plugins/lbbackup/raspiBackup.log&header=html&format=template" target="_blank" data-inline="true" data-mini="true" data-icon="arrow-d">Logdatei öffnen</a> -->
-
-
 </center>
 <script>
+
+
+$( ".schedule" ).change(function(){change_cronjob(this)});
+$( ".path" ).change(function(){change_config($(this).attr('data-key') + '.' + 'DESTINATION', $(this).val())});
+$( ".retention" ).change(function(){change_config($(this).attr('data-key') + '.' + 'RETENTION', $(this).val())});
+$( "#jittype" ).change(function(){change_config('JITBACKUP.TYPE', $("#jittype :radio:checked").val())});
+$( "#jit_destination" ).change(function(){change_config('JITBACKUP.DESTINATION', $(this).val())});
+$( "[name='fake_backup']" ).change(function(){change_config('CONFIG.FAKE_BACKUP', $(this)[0].checked)});
+$( "#NOTIFY_BACKUP_INFOS" ).change(function(){change_config('CONFIG.NOTIFY_BACKUP_INFOS', $(this)[0].checked)});
+$( "#NOTIFY_BACKUP_ERRORS" ).change(function(){change_config('CONFIG.NOTIFY_BACKUP_ERRORS', $(this)[0].checked)});
+$( "[name='email_notification']" ).change(function(){change_config('CONFIG.EMAIL_NOTIFICATION', $(this)[0].checked)});
+$( "#stop_services" ).change(function(){change_config('CONFIG.STOPSERVICES', $(this).val().replace(/(?:\r\n|\r|\n)/g, ','))});
+
 
 // Get numbers of raspiBackup PIDs every 5 seconds and update submit button status
 setInterval(function() {
@@ -169,6 +192,41 @@ getText = function(url, callback) // How can I use this callback?
     request.send();
 }
 
+var requestcounter = 0;
+function change_cronjob(element)
+{
+	var key = $(element).attr('data-key');
+	var period = $("#"+key+"_schedule_time").val();
+	var timebase = $("#"+key+"_schedule_timebase").val();
+	console.log("Key", key, "period", period, "Timebase", timebase);
+	
+	$("#"+key+"_schedule_processing").show();
+	console.log ("img:", $("#"+key+"_schedule_processing").attr('src'));
+	requestcounter++;
+	$.post( "", { action: 'changecron', key: key, period: period, timebase: timebase })
+	.done(function(res){
+		requestcounter--;
+		console.log ("Active requests", requestcounter);
+		if (requestcounter <= 0) $("#"+key+"_schedule_processing").hide();
+	});
+
+}
+
+function change_config(key, value)
+{
+	console.log("key", key, "value", value);
+	// $("#"+key+"_schedule_processing").show();
+	$.post( "", { action: 'changeconfig', key: key, value: value })
+	.done(function(res){
+		//if (requestcounter <= 0) $("#"+key+"_schedule_processing").hide();
+	});
+
+}
+
+
+
+
+
 function mycallback(data) {
    // alert(data);
    if (data != "0\n")
@@ -186,5 +244,9 @@ $("#jit_submit").click(function(){
 
 
 });
+
+
+
+
 
 </script>
