@@ -616,6 +616,9 @@ sub ajax
 	}
 	if ($R::action eq "changeconfig" && $R::key) 
 	{
+		my @tmp_key = split(/\./, $R::key);
+				
+		
 		eval {
 			if (! $R::value) {
 				$pcfg->delete(trim($R::key));
@@ -626,8 +629,17 @@ sub ajax
 		};
 		if ($@) {
 			print $cgi->header(-status => "500 Error writing plugin config");
+			exit(1);
 		}
-		print $cgi->header(-status => "204 Written to plugin config");
+		print $cgi->header(-status => "200 Written to plugin config");
+		
+		print STDERR "tmp_key1: $tmp_key[1] \n";
+		print STDERR "value: $R::value \n";
+		
+		
+		if ($tmp_key[1] && $tmp_key[1] eq "DESTINATION" && ! -d $R::value) {
+			print "Directory does not exist (but value was saved).";
+		}
 	}
 	exit;
 

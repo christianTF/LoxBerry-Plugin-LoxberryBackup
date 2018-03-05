@@ -35,6 +35,8 @@ th, td {
 	<label for="jit_destination">Backup-Ziel</label>
 	<input id="jit_destination" name="jit_destination" min="0" max="100" value="<TMPL_VAR JITBACKUP.DESTINATION>">
 </div>
+<div class="hint" style="color:red" name="jit_destination_hint" id="jit_destination_hint">
+</div>
 <div>
 	<input type="hidden" name="jit_backup" value="jit_backup">
 	<input type="button" name="jit_submit" id="jit_submit" value="Bereite vor..." disabled >
@@ -95,7 +97,11 @@ th, td {
 	</td>
 	<td>
 		<label for="<TMPL_VAR TYPE>cron_destination">Enter destination path</label>
-		<input id="<TMPL_VAR TYPE>cron_destination" name="<TMPL_VAR TYPE>cron_destination" value="<TMPL_VAR DESTINATION>" class="path" data-key="<TMPL_VAR TYPE>"></td>
+		<input id="<TMPL_VAR TYPE>cron_destination" name="<TMPL_VAR TYPE>cron_destination" value="<TMPL_VAR DESTINATION>" class="path" data-key="<TMPL_VAR TYPE>">
+		<div class="hint" style="color:red" name="<TMPL_VAR TYPE>cron_destination_hint" id="<TMPL_VAR TYPE>cron_destination_hint">
+		</div>
+
+		</td>
 	<td>
 		
 		<label for="<TMPL_VAR TYPE>cron_retention">Keep number of backups</label>
@@ -161,10 +167,10 @@ Traditionelle E-Mail Benachrichtigung
 
 
 $( ".schedule" ).change(function(){change_cronjob(this)});
-$( ".path" ).change(function(){change_config($(this).attr('data-key') + '.' + 'DESTINATION', $(this).val())});
+$( ".path" ).change(function(){change_config($(this).attr('data-key') + '.' + 'DESTINATION', $(this).val(), this)});
 $( ".retention" ).change(function(){change_config($(this).attr('data-key') + '.' + 'RETENTION', $(this).val())});
 $( "#jittype" ).change(function(){change_config('JITBACKUP.TYPE', $("#jittype :radio:checked").val())});
-$( "#jit_destination" ).change(function(){change_config('JITBACKUP.DESTINATION', $(this).val())});
+$( "#jit_destination" ).change(function(){change_config('JITBACKUP.DESTINATION', $(this).val(), this)});
 $( "[name='fake_backup']" ).change(function(){change_config('CONFIG.FAKE_BACKUP', $(this)[0].checked)});
 $( "#NOTIFY_BACKUP_INFOS" ).change(function(){change_config('CONFIG.NOTIFY_BACKUP_INFOS', $(this)[0].checked)});
 $( "#NOTIFY_BACKUP_ERRORS" ).change(function(){change_config('CONFIG.NOTIFY_BACKUP_ERRORS', $(this)[0].checked)});
@@ -201,24 +207,29 @@ function change_cronjob(element)
 	console.log("Key", key, "period", period, "Timebase", timebase);
 	
 	$("#"+key+"_schedule_processing").show();
-	console.log ("img:", $("#"+key+"_schedule_processing").attr('src'));
+	// console.log ("img:", $("#"+key+"_schedule_processing").attr('src'));
 	requestcounter++;
 	$.post( "", { action: 'changecron', key: key, period: period, timebase: timebase })
 	.done(function(res){
 		requestcounter--;
-		console.log ("Active requests", requestcounter);
+		// console.log ("Active requests", requestcounter);
 		if (requestcounter <= 0) $("#"+key+"_schedule_processing").hide();
 	});
 
 }
 
-function change_config(key, value)
+function change_config(key, value, srcelement)
 {
-	console.log("key", key, "value", value);
+	// console.log("key", key, "value", value);
 	// $("#"+key+"_schedule_processing").show();
+	
 	$.post( "", { action: 'changeconfig', key: key, value: value })
 	.done(function(res){
-		//if (requestcounter <= 0) $("#"+key+"_schedule_processing").hide();
+		if (srcelement) {
+			var elem = $("#"+$(srcelement).attr("id")+"_hint");
+			if (res) elem.text(res);
+			else elem.text("");
+		}
 	});
 
 }
