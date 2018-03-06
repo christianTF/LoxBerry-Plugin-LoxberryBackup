@@ -332,7 +332,7 @@ sub ajax
 		
 		# Create the event
 		my $event = new Config::Crontab::Event (
-			-command => "$lbpbindir/runbackup.pl type=$R::key scheduled=true",
+			-command => "$lbpbindir/runbackup.pl type=$R::key scheduled=true > /dev/null 2>&1",
 			-user => 'loxberry',
 			-system => 1,
 		);
