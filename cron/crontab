@@ -1,2 +1,6 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=""
+#
 # LoxBerry Backup crontab
 # Do not change this file directly, as it is managed and changed by the plugin
