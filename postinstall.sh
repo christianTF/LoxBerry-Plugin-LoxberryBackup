@@ -33,24 +33,27 @@ if [ ! -e REPLACELBPLOGDIR ]; then
 	mkdir -p REPLACELBPLOGDIR
 fi
 
-if [ -e "$LBHOMEDIR/system/cron/cron.daily/$2*" ]; then
+rm $LBHOMEDIR/system/cron/cron.daily/$2* >/dev/null
+if [ $? -eq 0 ]; then
 	echo "<WARNING> Deleting old daily schedules" 
-	rm -f $LBHOMEDIR/system/cron/cron.daily/$2*
 	UPGRADE=1
 fi
-if [ -e "$LBHOMEDIR/system/cron/cron.weekly/$2*" ]; then
+
+rm -f $LBHOMEDIR/system/cron/cron.weekly/$2*
+if [ $? -eq 0 ]; then
 	echo "<WARNING> Deleting old weekly schedules"
-	rm -f $LBHOMEDIR/system/cron/cron.weekly/$2*
 	UPGRADE=1
 fi
-if [ -e "$LBHOMEDIR/system/cron/cron.monthly/$2*" ]; then
+
+rm -f $LBHOMEDIR/system/cron/cron.monthly/$2*
+if [ $? -eq 0 ]; then
 	echo "<WARNING> Deleting old monthly schedules"
-	rm -f $LBHOMEDIR/system/cron/cron.monthly/$2*
 	UPGRADE=1
 fi
-if [ -e "$LBHOMEDIR/system/cron/cron.yearly/$2*" ]; then
+
+rm -f $LBHOMEDIR/system/cron/cron.yearly/$2*
+if [ $? -eq 0 ]; then
 	echo "<WARNING> Deleting old yearly schedules ($LBHOMEDIR/system/cron/cron.yearly/$2*) "
-	rm -f $LBHOMEDIR/system/cron/cron.yearly/$2*
 	UPGRADE=1
 fi
 
