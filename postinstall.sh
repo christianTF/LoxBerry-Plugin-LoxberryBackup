@@ -39,19 +39,19 @@ if [ $? -eq 0 ]; then
 	UPGRADE=1
 fi
 
-rm -f $LBHOMEDIR/system/cron/cron.weekly/$2*
+rm $LBHOMEDIR/system/cron/cron.weekly/$2* >/dev/null
 if [ $? -eq 0 ]; then
 	echo "<WARNING> Deleting old weekly schedules"
 	UPGRADE=1
 fi
 
-rm -f $LBHOMEDIR/system/cron/cron.monthly/$2*
+rm $LBHOMEDIR/system/cron/cron.monthly/$2* >/dev/null
 if [ $? -eq 0 ]; then
 	echo "<WARNING> Deleting old monthly schedules"
 	UPGRADE=1
 fi
 
-rm -f $LBHOMEDIR/system/cron/cron.yearly/$2*
+rm $LBHOMEDIR/system/cron/cron.yearly/$2* >/dev/null
 if [ $? -eq 0 ]; then
 	echo "<WARNING> Deleting old yearly schedules ($LBHOMEDIR/system/cron/cron.yearly/$2*) "
 	UPGRADE=1
