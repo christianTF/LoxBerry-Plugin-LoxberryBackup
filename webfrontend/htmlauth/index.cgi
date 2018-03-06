@@ -332,7 +332,7 @@ sub ajax
 		
 		# Create the event
 		my $event = new Config::Crontab::Event (
-			-command => "/opt/loxberry/bin/plugins/lbbackup/runbackup.pl type=$R::key scheduled=true",
+			-command => "$lbpbindir/runbackup.pl type=$R::key scheduled=true",
 			-user => 'loxberry',
 			-system => 1,
 		);
