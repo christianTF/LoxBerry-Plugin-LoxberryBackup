@@ -49,12 +49,12 @@ if [ -e "$LBHOMEDIR/system/cron/cron.monthly/$2*" ]; then
 	UPGRADE=1
 fi
 if [ -e "$LBHOMEDIR/system/cron/cron.yearly/$2*" ]; then
-	echo "<WARNING> Deleting old yearly schedules"
+	echo "<WARNING> Deleting old yearly schedules ($LBHOMEDIR/system/cron/cron.yearly/$2*) "
 	rm -f $LBHOMEDIR/system/cron/cron.yearly/$2*
 	UPGRADE=1
 fi
 
-if [ -z "$UPGRADE" ]; then
+if [ -n "$UPGRADE" ]; then
 	. $LBHOMEDIR/libs/bashlib/notify.sh
 	notify $3 Update "LoxBerry Backup changed the schedule system. Please reconfigure the schedules of your backups. No more automatic backups will be done otherwise." err
 	echo "<WARNING> LoxBerry Backup changed the schedule system. Please reconfigure the schedules of your backups. No more automatic backups will be done otherwise."
