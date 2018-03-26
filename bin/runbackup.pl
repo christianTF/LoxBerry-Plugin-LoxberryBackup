@@ -111,11 +111,11 @@ servicelist();
 
 push @params, email_params() if is_enabled($p{'CONFIG.EMAIL_NOTIFICATION'});
 push @params, "-F" if is_enabled($p{'CONFIG.FAKE_BACKUP'});
-push @params, "-N", "fstab disk temp";
-push @params, "-o", "\"$par_stopservices\"";
-push @params, "-a", "\"$par_startservices\"";
+push @params, "-N", '"fstab disk temp"';
+push @params, "-o", '"' . trim($par_stopservices) . '"';
+push @params, "-a", '"' . trim($par_startservices) . '"';
 push @params, "-k", $bc->{'RETENTION'};
-push @params, "-t" , lc($R::type);
+push @params, "-t", lc($R::type);
 push @params, "-L", "current";
 push @params, "-l", "debug" if ($loglevel == 7);
 push @params, "-m", "minimal" if ($loglevel <= 5);
@@ -127,6 +127,10 @@ push @params, $dest;
 #push  @params, "-z+";
 
 my $paramstr;
+foreach (@cmd) {
+	$paramstr .= $_ . " ";
+}
+
 foreach (@params) {
 	$paramstr .= $_ . " ";
 }
@@ -142,8 +146,10 @@ LOGINF "Changing to directory $lbplogdir";
 chdir $lbplogdir;
 LOGOK "Starting backup";
 my $logfh = $log->filehandle;
-print STDERR "@cmd @params\n";
-system(@cmd, @params);
+LOGDEB "$paramstr";
+system($paramstr);
+# qx { @cmd @params };
+
 my $exitcode = $? >> 8;
 # Copy logfile to $log object
 if (-e "$lbplogdir/raspiBackup.log") {
@@ -233,15 +239,6 @@ sub servicelist
 {
 	my (@stop_services_array) = $pcfg->param('CONFIG.STOPSERVICES');
 	
-	#print "Services array: " . $p{'CONFIG.STOPSERVICES'} . "\n";
-	# print STDERR $p{'CONFIG.STOPSERVICES'};
-	#$stop_services_list =~ s/\r//g;
-	# my @stop_services_array = split(/,/, $stop_services_list);
-	# Remove empty elements
-	# @stop_services_array = grep /\S/, @stop_services_array;
-	
-	# print STDERR "\n" . $stop_services_array[0] . "\n";
-	
 	undef $par_stopservices;
 	undef $par_startservices;
 	
@@ -249,8 +246,8 @@ sub servicelist
 		# print "Service $service\n";
 		$service = trim($service);
 		if ($service) {
-			$par_stopservices .= " service $service stop &&";
-			$par_startservices .= " service $service start &&";
+			$par_stopservices .= "systemctl stop $service && ";
+			$par_startservices .= "systemctl start $service && ";
 		}
 	}
 	# Remove trailing &&'s, or write : if empty
