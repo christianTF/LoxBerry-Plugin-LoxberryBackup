@@ -16,9 +16,9 @@
 ##########################################################################
 # Modules
 ##########################################################################
-use LoxBerry::System;
 use LoxBerry::Web;
 use LoxBerry::Log;
+use LoxBerry::Storage;
 use Config::Crontab;
 
 use CGI qw/:standard/;
@@ -38,7 +38,7 @@ our  $cgi = CGI->new;
 my  $pcfg;
 my  $lang;
 my  $languagefile;
-my  $version = "1.0.1_1";
+my  $version = "1.0.3.1";
 my  $pname;
 my  $languagefileplugin;
 my $topmenutemplate;
@@ -204,6 +204,19 @@ my $jittype=  radio_group(-name=>'jitbackuptype',
 	);
 $maintemplate->param( 'JITTYPE' => $jittype );
 
+my $jit_path = LoxBerry::Storage::get_storage_html(
+	formid => 'jit_destination',
+	currentpath => $pcfg->param("JITBACKUP.DESTINATION"),
+	custom_folder => 1,
+	readwriteonly => 1,
+	label => $L{'BACKUP.LABEL_JIT_DESTINATION'},
+	type_usb => 1,
+	type_net => 1,
+	type_custom => 1,
+);
+$maintemplate->param( 'DROPDOWN_JIT_DESTINATION' => $jit_path );
+
+
 
 my @backupselection;
 foreach my $type (@backuptypes) {
@@ -239,6 +252,19 @@ foreach my $type (@backuptypes) {
 		}
 		#print STDERR "$type Event: " . $event->hour . " hr / " . $event->dom()  . " day\n";
 	}
+	
+	
+	$val{'DROPDOWN_DESTINATION'} = LoxBerry::Storage::get_storage_html(
+		formid => $type . 'cron_destination',
+		currentpath => $val{"DESTINATION"},
+		custom_folder => 1,
+		readwriteonly => 1,
+		label => $L{'BACKUP.LABEL_DESTINATION'},
+		type_usb => 1,
+		type_net => 1,
+		type_custom => 1,
+		data_mini => 1,
+	);
 	
 	push @backupselection, \%val;
 

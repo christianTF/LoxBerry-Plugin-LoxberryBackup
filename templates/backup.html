@@ -10,19 +10,22 @@ th, td {
 }
 </style>
 
-<p  class="wide"><TMPL_VAR BACKUP.HEADER_JIT></p>
-<table style="border-collapse:collapse;" border="0" width="80%">
+<p class="wide"><TMPL_VAR BACKUP.HEADER_JIT></p>
+<table style="border-collapse:collapse;" border="0" width="100%">
 <tbody>
 <tr>
-<td>
+<td width="40%">
 	<fieldset data-role="controlgroup" id="jittype">
 		<TMPL_VAR JITTYPE>
 	</fieldset> 
 </td>
 <td>
 <div>
+	<!--
 	<label for="jit_destination"><TMPL_VAR BACKUP.LABEL_JIT_DESTINATION></label>
 	<input id="jit_destination" name="jit_destination" min="0" max="100" value="<TMPL_VAR JITBACKUP.DESTINATION>">
+	-->
+	<TMPL_VAR DROPDOWN_JIT_DESTINATION>
 </div>
 <div class="hint" style="color:red" name="jit_destination_hint" id="jit_destination_hint">
 </div>
@@ -78,8 +81,14 @@ th, td {
 		<p id="<TMPL_VAR TYPE>_schedule_selected"></p>
 	</td>
 	<td>
+		<TMPL_VAR DROPDOWN_DESTINATION>
+		<!--
 		<label for="<TMPL_VAR TYPE>cron_destination"><TMPL_VAR BACKUP.LABEL_DESTINATION></label>
 		<input id="<TMPL_VAR TYPE>cron_destination" name="<TMPL_VAR TYPE>cron_destination" value="<TMPL_VAR DESTINATION>" class="path" data-key="<TMPL_VAR TYPE>">
+		-->
+		<script>
+		$( "#<TMPL_VAR TYPE>cron_destination" ).change(function(){change_config("<TMPL_VAR TYPE>" + '.' + 'DESTINATION', $(this).val(), this)});
+		</script>
 		<div class="hint" style="color:red" name="<TMPL_VAR TYPE>cron_destination_hint" id="<TMPL_VAR TYPE>cron_destination_hint">
 		</div>
 
@@ -90,6 +99,7 @@ th, td {
 		<input id="<TMPL_VAR TYPE>cron_retention" name="<TMPL_VAR TYPE>cron_retention" min="0" max="100" type="number" value="<TMPL_VAR RETENTION>" class="retention" data-key="<TMPL_VAR TYPE>">
 	</td>
 </tr>
+
 </TMPL_LOOP>
 <tr>
 <td colspan="3" style="background-color:#EAEA69;">
@@ -148,7 +158,6 @@ th, td {
 
 
 $( ".schedule" ).change(function(){change_cronjob(this)});
-$( ".path" ).change(function(){change_config($(this).attr('data-key') + '.' + 'DESTINATION', $(this).val(), this)});
 $( ".retention" ).change(function(){change_config($(this).attr('data-key') + '.' + 'RETENTION', $(this).val())});
 $( "#jittype" ).change(function(){change_config('JITBACKUP.TYPE', $("#jittype :radio:checked").val())});
 $( "#jit_destination" ).change(function(){change_config('JITBACKUP.DESTINATION', $(this).val(), this)});
