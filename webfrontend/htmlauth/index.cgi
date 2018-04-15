@@ -242,6 +242,7 @@ foreach my $type (@backuptypes) {
 		my @tmp_hours = split(/\//, $event->hour(), 2);
 		if ($tmp_days[1]) {
 			$val{'SCHEDULE_TIME'} = $tmp_days[1];
+			$val{'SCHEDULE_CLOCK'} = sprintf("%02d:%02d", $event->hour(), $event->minute());
 			$val{'SELECTED_DAYS'} = "selected";
 		} elsif ($tmp_hours[1]) {
 			$val{'SCHEDULE_TIME'} = $tmp_hours[1];
@@ -365,7 +366,13 @@ sub ajax
 		
 		# Decide timeplan
 		if ($R::timebase eq "days") {
-			my $datetime = "0 " . "4 " . "*/$R::period " . "* " . "*";
+			my ($runhour, $runmin) = split(/:/, $R::clock);
+			my $datetime;
+			if($runhour && $runmin && $runhour >= 0 && $runhour <= 24 && $runmin >= 0 && $runmin <= 59) {
+				$datetime = "$runmin " . "$runhour " . "*/$R::period " . "* " . "*";
+			} else {	
+				$datetime = "0 " . "4 " . "*/$R::period " . "* " . "*";
+			}
 			$event->datetime($datetime);
 		} elsif ($R::timebase eq "hours") {
 			my $datetime = "0 " . "*/$R::period " . "* " . "* " . "*";

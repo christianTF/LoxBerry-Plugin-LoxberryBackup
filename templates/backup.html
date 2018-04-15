@@ -76,6 +76,10 @@ th, td {
 				<option value="days" <TMPL_VAR SELECTED_DAYS>><TMPL_VAR COMMON.DAYS></option>
 				<option value="hours" <TMPL_VAR SELECTED_HOURS>><TMPL_VAR COMMON.HOURS></option>
 			</select>
+			<div id="<TMPL_VAR TYPE>_clock_wrapper" style="display:none">
+				<input type="time" data-clear-button="false" id="<TMPL_VAR TYPE>_schedule_clock" name="<TMPL_VAR TYPE>_schedule_clock" value="<TMPL_VAR SCHEDULE_CLOCK>">
+			</div>
+			
 			<img src="images/processing.gif" id="<TMPL_VAR TYPE>_schedule_processing" height="50" width="50" style="float:right;display:none;">
 		</div>
 		<p id="<TMPL_VAR TYPE>_schedule_selected"></p>
@@ -88,13 +92,18 @@ th, td {
 		-->
 		<script>
 		$( "#<TMPL_VAR TYPE>cron_destination" ).change(function(){change_config("<TMPL_VAR TYPE>" + '.' + 'DESTINATION', $(this).val(), this)});
+		
+		$(function() {
+			if( $("#<TMPL_VAR TYPE>_schedule_timebase").val() == "days" ) {
+				$("#<TMPL_VAR TYPE>_clock_wrapper").show();
+			} 
+		});
 		</script>
 		<div class="hint" style="color:red" name="<TMPL_VAR TYPE>cron_destination_hint" id="<TMPL_VAR TYPE>cron_destination_hint">
 		</div>
 
 		</td>
-	<td>
-		
+	<td width="20%">
 		<label for="<TMPL_VAR TYPE>cron_retention"><TMPL_VAR BACKUP.LABEL_RETENTION></label>
 		<input id="<TMPL_VAR TYPE>cron_retention" name="<TMPL_VAR TYPE>cron_retention" min="0" max="100" type="number" value="<TMPL_VAR RETENTION>" class="retention" data-key="<TMPL_VAR TYPE>">
 	</td>
@@ -156,7 +165,6 @@ th, td {
 </center>
 <script>
 
-
 $( ".schedule" ).change(function(){change_cronjob(this)});
 $( ".retention" ).change(function(){change_config($(this).attr('data-key') + '.' + 'RETENTION', $(this).val())});
 $( "#jittype" ).change(function(){change_config('JITBACKUP.TYPE', $("#jittype :radio:checked").val())});
@@ -192,14 +200,22 @@ var requestcounter = 0;
 function change_cronjob(element)
 {
 	var key = $(element).attr('data-key');
+	$("#"+key+"_schedule_processing").show();
 	var period = $("#"+key+"_schedule_time").val();
 	var timebase = $("#"+key+"_schedule_timebase").val();
-	console.log("Key", key, "period", period, "Timebase", timebase);
+	var clock = $("#"+key+"_schedule_clock").val();
+	console.log("Key", key, "period", period, "Timebase", timebase, "Clock", clock);
 	
-	$("#"+key+"_schedule_processing").show();
+	
+	if( timebase == "days" ) {
+		$("#"+key+"_clock_wrapper").show();
+	} else {
+		$("#"+key+"_clock_wrapper").hide();
+	}
+		
 	// console.log ("img:", $("#"+key+"_schedule_processing").attr('src'));
 	requestcounter++;
-	$.post( "", { action: 'changecron', key: key, period: period, timebase: timebase })
+	$.post( "", { action: 'changecron', key: key, period: period, timebase: timebase, clock: clock })
 	.done(function(res){
 		requestcounter--;
 		// console.log ("Active requests", requestcounter);
