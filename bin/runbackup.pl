@@ -29,6 +29,7 @@ $R::scheduled if (1);
 my $pcfg = new Config::Simple("$lbpconfigdir/lbbackup.cfg");
 if (! defined $pcfg) {
 	LOGCRIT "Cannot open LoxBerry Backup config file $lbpconfigdir/lbbackup.cfg";
+	LOGEND;
 	notify($lbpplugindir, "Backup", "Cannot open LoxBerry Backup config file", "error");
 	exit(1);
 }
@@ -54,6 +55,7 @@ if ($jit) {
 	my $status = LoxBerry::System::lock(lockfile => 'lbbackup');
 	if ($status) {
 		LOGCRIT "LoxBerry Backup is locked. It seems that another backup is running. Exiting.";
+		LOGEND;
 		exit(1);
 	}
 } else {
@@ -66,6 +68,7 @@ if ($jit) {
 	}
 	if ($status) {
 		LOGCRIT "Could not lock LoxBerry Backup after 120 tries (3 min. each) . It seems that another backup is running. Giving up.";
+		LOGEND;
 		exit (1);
 	}
 }
@@ -83,6 +86,7 @@ my @backuptypes = ( "DDZ", "TGZ", "RSYNC");
 
 if ( ! grep( /^$R::type$/, @backuptypes ) ) {
   LOGCRIT "Backup type $R::type not supported";
+  LOGEND;
   notify($lbpplugindir, "Backup", "Backup type $R::type not supported", "error");
   exit (1);
 }
@@ -212,7 +216,7 @@ if (is_enabled($p{'CONFIG.NOTIFY_BACKUP_INFOS'}) && $exitcode == 0 ||
 }
 
 LoxBerry::System::unlock(lockfile => 'lbbackup');
-
+LOGEND;
 exit;
 		
 
