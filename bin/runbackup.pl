@@ -8,6 +8,9 @@ use strict;
 
 my $type;
 
+my $output;
+my $exitcode;
+
 # $LoxBerry::System::DEBUG=1;
 
 
@@ -24,7 +27,7 @@ LOGSTART "LoxBerry Backup";
 
 my $cgi = CGI->new;
 $cgi->import_names('R');
-$R::scheduled if (1);
+$R::scheduled if (0);
 
 my $pcfg = new Config::Simple("$lbpconfigdir/lbbackup.cfg");
 if (! defined $pcfg) {
@@ -111,6 +114,24 @@ my $par_stopservices;
 my $par_startservices;
 my @params;
 $dest = $dest ? $dest : $bc->{'DESTINATION'};
+
+qx { ls $dest };
+sleep 1;
+
+if (! -e $dest) {
+	LOGINF "Destination directory does not exist - try to create...";
+	$output = qx { mkdir -p $dest };
+	$exitcode  = $? >> 8;
+	if($exitcode != 0) {
+		LOGCRIT "Error creating destination directory: $output";
+		LOGEND;
+		notify($lbpplugindir, "Backup", "Cannot create destination directory $dest. No permissions? Error $output", "error");
+		exit(1);
+	}
+	LOGOK "Destination directory was created.";
+	qx { chown loxberry:loxberry $dest };
+}
+
 servicelist();
 
 push @params, email_params() if is_enabled($p{'CONFIG.EMAIL_NOTIFICATION'});
@@ -120,6 +141,7 @@ push @params, "-o", '"' . trim($par_stopservices) . '"';
 push @params, "-a", '"' . trim($par_startservices) . '"';
 push @params, "-k", $bc->{'RETENTION'};
 push @params, "-t", lc($R::type);
+push @params, "-z-" if($R::type eq 'RSYNC');
 push @params, "-L", "current";
 push @params, "-l", "debug" if ($loglevel == 7);
 push @params, "-m", "minimal" if ($loglevel <= 5);
@@ -139,8 +161,7 @@ foreach (@params) {
 	$paramstr .= $_ . " ";
 }
 
-LOGDEB $paramstr;
-
+# $paramstr = "script --append " . $log->filename() . ";
 
 # -----------------------------------------------------------
 # Run Backup
@@ -149,20 +170,21 @@ LOGDEB $paramstr;
 LOGINF "Changing to directory $lbplogdir";
 chdir $lbplogdir;
 LOGOK "Starting backup";
-my $logfh = $log->filehandle;
-LOGDEB "$paramstr";
-system($paramstr);
+LOGINF "$paramstr";
+my $logname = $log->close;
+system("script --quiet --flush --return --append " . $log->filename() . " --command '" . $paramstr . "'");
 # qx { @cmd @params };
+$exitcode = $? >> 8;
+# # Copy logfile to $log object
+# if (-e "$lbplogdir/raspiBackup.log") {
+	# open ( my $fh, "<", "$lbplogdir/raspiBackup.log" ); 
+	# while ( my $line = <$fh> ) {
+		# print $logfh $line;
+	# }
+	# close $fh;
+# }
 
-my $exitcode = $? >> 8;
-# Copy logfile to $log object
-if (-e "$lbplogdir/raspiBackup.log") {
-	open ( my $fh, "<", "$lbplogdir/raspiBackup.log" ); 
-	while ( my $line = <$fh> ) {
-		print $logfh $line;
-	}
-	close $fh;
-}
+$log->open();
 
 if ($exitcode != 0) {
 	LOGERR "Backup failed with error code $exitcode";
@@ -228,15 +250,20 @@ sub email_params
 	my $mailadr = "";
 	my $friendlyname;
 	
-	print STDERR "Checking E-Mail notification...\n";
 	$friendlyname = trim(lbfriendlyname() . " LoxBerry");
 	my $mailcfg = new Config::Simple("$lbsconfigdir/mail.cfg");
 	unless($mailadr = $mailcfg->param("SMTP.EMAIL"))
 	{ 		
-	print STDERR "Error reading mail configuration in $lbsconfigdir/mail.cfg\n";
+	LOGWARN "raspiBackup mail notification is enabled, but no LoxBerry mail configuration is done - skipping sending e-mails";
 	return;
 	}
-	return "-e", $mailadr, "-E", "-r $mailadr";
+	LOGOK "LoxBerry mail configuration read for raspiBackup e-mails.";
+	
+	# The -E parameter currently does not work in raspiBackup
+	#return ("-e", $mailadr, "-E \"-r $mailadr\"");
+	
+	return ("-e", $mailadr);
+	
 }
 
 sub servicelist

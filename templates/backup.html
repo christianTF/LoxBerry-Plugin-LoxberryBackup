@@ -1,269 +1,276 @@
 <center>
-<p><TMPL_VAR BACKUP.INTRO1></p>
-<p><TMPL_VAR BACKUP.INTRO2></p>
-<form>
-<!-- <form method="post" data-ajax="false" name="cti_form" id="cti_form" action="./index.cgi"> -->
-<style>
-th, td {
-    padding: 10px;
-    // text-align: left;
-}
-</style>
+<TMPL_IF mainform>
+	<p><TMPL_VAR BACKUP.INTRO1></p>
+	<p><TMPL_VAR BACKUP.INTRO2></p>
+	<form>
+	<!-- <form method="post" data-ajax="false" name="cti_form" id="cti_form" action="./index.cgi"> -->
+	<style>
+	th, td {
+		padding: 10px;
+		// text-align: left;
+	}
+	</style>
 
-<p class="wide"><TMPL_VAR BACKUP.HEADER_JIT></p>
-<table style="border-collapse:collapse;" border="0" width="100%">
-<tbody>
-<tr>
-<td width="40%">
-	<fieldset data-role="controlgroup" id="jittype">
-		<TMPL_VAR JITTYPE>
-	</fieldset> 
-</td>
-<td>
-<div>
-	<!--
-	<label for="jit_destination"><TMPL_VAR BACKUP.LABEL_JIT_DESTINATION></label>
-	<input id="jit_destination" name="jit_destination" min="0" max="100" value="<TMPL_VAR JITBACKUP.DESTINATION>">
-	-->
-	<TMPL_VAR DROPDOWN_JIT_DESTINATION>
-</div>
-<div class="hint" style="color:red" name="jit_destination_hint" id="jit_destination_hint">
-</div>
-<div>
-	<input type="hidden" name="jit_backup" value="jit_backup">
-	<input type="button" name="jit_submit" id="jit_submit" value="<TMPL_VAR COMMON.BUTTON_PREPARING>" disabled >
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-
-<style>
-.schedule .ui-input-text {
-    width: 100px !important;
-	float: left;
-}
-
-</style>
-
-<p  class="wide"><TMPL_VAR BACKUP.HEADER_TIMETABLE></p>
-<table class="ui-widget" style="border-collapse:collapse;"  border="1" width="95%">
-<!--
-<thead>
-<tr>
-<th >Zeitplan</th>
-<th>Backup-Ziel</th>
-<th style="width:20%">Aufbewahrte Sicherungen</th>
-</tr>
-</thead>
--->
-
-<tbody>
-<TMPL_LOOP BACKUPSELECTION>
+	<p class="wide"><TMPL_VAR BACKUP.HEADER_JIT></p>
+	<table style="border-collapse:collapse;" border="0" width="100%">
+	<tbody>
 	<tr>
-	<td colspan="3" style="background-color:#D7E8C2;">
-		<h3><TMPL_VAR LABEL></h3>
+	<td width="40%">
+		<fieldset data-role="controlgroup" id="jittype">
+			<TMPL_VAR JITTYPE>
+		</fieldset> 
 	</td>
-	<tr>
-	<tr>
 	<td>
-		<TMPL_VAR BACKUP.LABEL_TIMETABLE>
-		<div data-role="fieldcontain" class="schedule" name="<TMPL_VAR TYPE>_1" id="<TMPL_VAR TYPE>_1" data-key="<TMPL_VAR TYPE>">
-		
-			<input type="number" min="0" max="999" id="<TMPL_VAR TYPE>_schedule_time" name="<TMPL_VAR TYPE>_schedule_time" value="<TMPL_VAR SCHEDULE_TIME>" data-inline="true" class="interval" >
-			<select name="<TMPL_VAR TYPE>_schedule_timebase" id="<TMPL_VAR TYPE>_schedule_timebase" data-mini="true" data-inline="true">
-				<option value="disabled" <TMPL_VAR SELECTED_DISABLED>><TMPL_VAR COMMON.DISABLED></option>
-				<option value="days" <TMPL_VAR SELECTED_DAYS>><TMPL_VAR COMMON.DAYS></option>
-				<option value="hours" <TMPL_VAR SELECTED_HOURS>><TMPL_VAR COMMON.HOURS></option>
-			</select>
-			<div id="<TMPL_VAR TYPE>_clock_wrapper" style="display:none">
-				<input type="time" data-clear-button="false" id="<TMPL_VAR TYPE>_schedule_clock" name="<TMPL_VAR TYPE>_schedule_clock" value="<TMPL_VAR SCHEDULE_CLOCK>">
-			</div>
-			
-			<img src="images/processing.gif" id="<TMPL_VAR TYPE>_schedule_processing" height="50" width="50" style="float:right;display:none;">
-		</div>
-		<p id="<TMPL_VAR TYPE>_schedule_selected"></p>
-	</td>
-	<td width="50%">
-		<TMPL_VAR DROPDOWN_DESTINATION>
+	<div>
 		<!--
-		<label for="<TMPL_VAR TYPE>cron_destination"><TMPL_VAR BACKUP.LABEL_DESTINATION></label>
-		<input id="<TMPL_VAR TYPE>cron_destination" name="<TMPL_VAR TYPE>cron_destination" value="<TMPL_VAR DESTINATION>" class="path" data-key="<TMPL_VAR TYPE>">
+		<label for="jit_destination"><TMPL_VAR BACKUP.LABEL_JIT_DESTINATION></label>
+		<input id="jit_destination" name="jit_destination" min="0" max="100" value="<TMPL_VAR JITBACKUP.DESTINATION>">
 		-->
-		<script>
-		$( "#<TMPL_VAR TYPE>cron_destination" ).change(function(){change_config("<TMPL_VAR TYPE>" + '.' + 'DESTINATION', $(this).val(), this)});
-		
-		$(function() {
-			if( $("#<TMPL_VAR TYPE>_schedule_timebase").val() == "days" ) {
-				$("#<TMPL_VAR TYPE>_clock_wrapper").show();
-			} 
-		});
-		</script>
-		<div class="hint" style="color:red" name="<TMPL_VAR TYPE>cron_destination_hint" id="<TMPL_VAR TYPE>cron_destination_hint">
-		</div>
+		<TMPL_VAR DROPDOWN_JIT_DESTINATION>
+	</div>
+	<div class="hint" style="color:red" name="jit_destination_hint" id="jit_destination_hint">
+	</div>
+	<div>
+		<input type="hidden" name="jit_backup" value="jit_backup">
+		<input type="button" name="jit_submit" id="jit_submit" value="<TMPL_VAR COMMON.BUTTON_PREPARING>" disabled >
+	</div>
+	</td>
+	</tr>
+	</tbody>
+	</table>
 
+	<style>
+	.schedule .ui-input-text {
+		width: 100px !important;
+		float: left;
+	}
+
+	</style>
+
+	<p  class="wide"><TMPL_VAR BACKUP.HEADER_TIMETABLE></p>
+	<table class="ui-widget" style="border-collapse:collapse;"  border="1" width="95%">
+	<!--
+	<thead>
+	<tr>
+	<th >Zeitplan</th>
+	<th>Backup-Ziel</th>
+	<th style="width:20%">Aufbewahrte Sicherungen</th>
+	</tr>
+	</thead>
+	-->
+
+	<tbody>
+	<TMPL_LOOP BACKUPSELECTION>
+		<tr>
+		<td colspan="3" style="background-color:#D7E8C2;">
+			<h3><TMPL_VAR LABEL></h3>
 		</td>
-	<td width="20%">
-		<label for="<TMPL_VAR TYPE>cron_retention"><TMPL_VAR BACKUP.LABEL_RETENTION></label>
-		<input id="<TMPL_VAR TYPE>cron_retention" name="<TMPL_VAR TYPE>cron_retention" min="0" max="100" type="number" value="<TMPL_VAR RETENTION>" class="retention" data-key="<TMPL_VAR TYPE>">
-	</td>
-</tr>
+		<tr>
+		<tr>
+		<td>
+			<TMPL_VAR BACKUP.LABEL_TIMETABLE>
+			<div data-role="fieldcontain" class="schedule" name="<TMPL_VAR TYPE>_1" id="<TMPL_VAR TYPE>_1" data-key="<TMPL_VAR TYPE>">
+			
+				<input type="number" min="0" max="999" id="<TMPL_VAR TYPE>_schedule_time" name="<TMPL_VAR TYPE>_schedule_time" value="<TMPL_VAR SCHEDULE_TIME>" data-inline="true" class="interval" >
+				<select name="<TMPL_VAR TYPE>_schedule_timebase" id="<TMPL_VAR TYPE>_schedule_timebase" data-mini="true" data-inline="true">
+					<option value="disabled" <TMPL_VAR SELECTED_DISABLED>><TMPL_VAR COMMON.DISABLED></option>
+					<option value="days" <TMPL_VAR SELECTED_DAYS>><TMPL_VAR COMMON.DAYS></option>
+					<option value="hours" <TMPL_VAR SELECTED_HOURS>><TMPL_VAR COMMON.HOURS></option>
+				</select>
+				<div id="<TMPL_VAR TYPE>_clock_wrapper" style="display:none">
+					<input type="time" data-clear-button="false" id="<TMPL_VAR TYPE>_schedule_clock" name="<TMPL_VAR TYPE>_schedule_clock" value="<TMPL_VAR SCHEDULE_CLOCK>">
+				</div>
+				
+				<img src="images/processing.gif" id="<TMPL_VAR TYPE>_schedule_processing" height="50" width="50" style="float:right;display:none;">
+			</div>
+			<p id="<TMPL_VAR TYPE>_schedule_selected"></p>
+		</td>
+		<td width="50%">
+			<TMPL_VAR DROPDOWN_DESTINATION>
+			<!--
+			<label for="<TMPL_VAR TYPE>cron_destination"><TMPL_VAR BACKUP.LABEL_DESTINATION></label>
+			<input id="<TMPL_VAR TYPE>cron_destination" name="<TMPL_VAR TYPE>cron_destination" value="<TMPL_VAR DESTINATION>" class="path" data-key="<TMPL_VAR TYPE>">
+			-->
+			<script>
+			$( "#<TMPL_VAR TYPE>cron_destination" ).change(function(){change_config("<TMPL_VAR TYPE>" + '.' + 'DESTINATION', $(this).val(), this)});
+			
+			$(function() {
+				if( $("#<TMPL_VAR TYPE>_schedule_timebase").val() == "days" ) {
+					$("#<TMPL_VAR TYPE>_clock_wrapper").show();
+				} 
+			});
+			</script>
+			<div class="hint" style="color:red" name="<TMPL_VAR TYPE>cron_destination_hint" id="<TMPL_VAR TYPE>cron_destination_hint">
+			</div>
 
-</TMPL_LOOP>
-<tr>
-<td colspan="3" style="background-color:#EAEA69;">
-		<h3><TMPL_VAR COMMON.FURTHER_SETTINGS></h3>
-</td>
-</tr>
-<tr>
-<td>
-<TMPL_VAR BACKUP.LABEL_FAKE_BACKUP>
-</td>
-	<td><TMPL_VAR FAKE_BACKUP>
-	</td>
-	<td colspan="2" class="hint"><TMPL_VAR BACKUP.HINT_FAKE_MODE></td>
-</tr>
+			</td>
+		<td width="20%">
+			<label for="<TMPL_VAR TYPE>cron_retention"><TMPL_VAR BACKUP.LABEL_RETENTION></label>
+			<input id="<TMPL_VAR TYPE>cron_retention" name="<TMPL_VAR TYPE>cron_retention" min="0" max="100" type="number" value="<TMPL_VAR RETENTION>" class="retention" data-key="<TMPL_VAR TYPE>">
+		</td>
+	</tr>
 
-<tr>
-<td>
-<TMPL_VAR BACKUP.LABEL_BACKUP_NOTIFICATION>
-</td>
+	</TMPL_LOOP>
+	<tr>
+	<td colspan="3" style="background-color:#EAEA69;">
+			<h3><TMPL_VAR COMMON.FURTHER_SETTINGS></h3>
+	</td>
+	</tr>
+	<tr>
 	<td>
-	<fieldset data-role="controlgroup" style="display:inline-block;width:auto;">
-        <input type="checkbox" name="NOTIFY_BACKUP_INFOS" id="NOTIFY_BACKUP_INFOS" class="NOTIFY" <TMPL_VAR NOTIFY_BACKUP_INFOS>><label for="NOTIFY_BACKUP_INFOS"><TMPL_VAR BACKUP.OPTION_INFOS></label>
-        <input type="checkbox" name="NOTIFY_BACKUP_ERRORS" id="NOTIFY_BACKUP_ERRORS" class="NOTIFY" <TMPL_VAR NOTIFY_BACKUP_ERRORS>><label for="NOTIFY_BACKUP_ERRORS"><TMPL_VAR BACKUP.OPTION_ERRORS></label>
-		</fieldset>
+	<TMPL_VAR BACKUP.LABEL_FAKE_BACKUP>
 	</td>
-	<td colspan="2" class="hint"><TMPL_VAR BACKUP.HINT_BACKUP_NOTIFICATION></td>
-</tr>
-<tr>
-<td>
-<TMPL_VAR BACKUP.LABEL_TRADITIONAL_EMAIL>
-</td>
-	<td><fieldset data-role="controlgroup" class="ui-mini"><TMPL_VAR NAME=EMAIL_NOTIFICATION></fieldset>
+		<td><TMPL_VAR FAKE_BACKUP>
+		</td>
+		<td colspan="2" class="hint"><TMPL_VAR BACKUP.HINT_FAKE_MODE></td>
+	</tr>
+
+	<tr>
+	<td>
+	<TMPL_VAR BACKUP.LABEL_BACKUP_NOTIFICATION>
 	</td>
-	<td colspan="2" class="hint"><TMPL_VAR BACKUP.HINT_TRADITIONAL_EMAIL></td>
-</tr>
-<tr>
-<td><TMPL_VAR BACKUP.LABEL_STOP_START_SERVICES>
-</td>
-<td>
-<textarea name="stop_services" id="stop_services"><TMPL_VAR NAME=STOP_SERVICES></textarea>
-</td>
-<td colspan="2" class="hint"><TMPL_VAR BACKUP.HINT_STOP_START_SERVICES>
-</td>
-</tr>
-<tr>
-<td colspan="3">
-<input type="hidden" name="save" value="save">
-</td>
-</tr>
-</tbody>
-</table>
-<br>
-</form>
-</center>
-<script>
+		<td>
+		<fieldset data-role="controlgroup" style="display:inline-block;width:auto;">
+			<input type="checkbox" name="NOTIFY_BACKUP_INFOS" id="NOTIFY_BACKUP_INFOS" class="NOTIFY" <TMPL_VAR NOTIFY_BACKUP_INFOS>><label for="NOTIFY_BACKUP_INFOS"><TMPL_VAR BACKUP.OPTION_INFOS></label>
+			<input type="checkbox" name="NOTIFY_BACKUP_ERRORS" id="NOTIFY_BACKUP_ERRORS" class="NOTIFY" <TMPL_VAR NOTIFY_BACKUP_ERRORS>><label for="NOTIFY_BACKUP_ERRORS"><TMPL_VAR BACKUP.OPTION_ERRORS></label>
+			</fieldset>
+		</td>
+		<td colspan="2" class="hint"><TMPL_VAR BACKUP.HINT_BACKUP_NOTIFICATION></td>
+	</tr>
+	<tr>
+	<td>
+	<TMPL_VAR BACKUP.LABEL_TRADITIONAL_EMAIL>
+	</td>
+		<td><fieldset data-role="controlgroup" class="ui-mini"><TMPL_VAR NAME=EMAIL_NOTIFICATION></fieldset>
+		</td>
+		<td colspan="2" class="hint"><TMPL_VAR BACKUP.HINT_TRADITIONAL_EMAIL></td>
+	</tr>
+	<tr>
+	<td><TMPL_VAR BACKUP.LABEL_STOP_START_SERVICES>
+	</td>
+	<td>
+	<textarea name="stop_services" id="stop_services"><TMPL_VAR NAME=STOP_SERVICES></textarea>
+	</td>
+	<td colspan="2" class="hint"><TMPL_VAR BACKUP.HINT_STOP_START_SERVICES>
+	</td>
+	</tr>
+	<tr>
+	<td colspan="3">
+	<input type="hidden" name="save" value="save">
+	</td>
+	</tr>
+	</tbody>
+	</table>
+	<br>
+	</form>
+	</center>
+	<script>
 
-$( ".schedule" ).change(function(){change_cronjob(this)});
-$( ".retention" ).change(function(){change_config($(this).attr('data-key') + '.' + 'RETENTION', $(this).val())});
-$( "#jittype" ).change(function(){change_config('JITBACKUP.TYPE', $("#jittype :radio:checked").val())});
-$( "#jit_destination" ).change(function(){change_config('JITBACKUP.DESTINATION', $(this).val(), this)});
-$( "[name='fake_backup']" ).change(function(){change_config('CONFIG.FAKE_BACKUP', $(this)[0].checked)});
-$( "#NOTIFY_BACKUP_INFOS" ).change(function(){change_config('CONFIG.NOTIFY_BACKUP_INFOS', $(this)[0].checked)});
-$( "#NOTIFY_BACKUP_ERRORS" ).change(function(){change_config('CONFIG.NOTIFY_BACKUP_ERRORS', $(this)[0].checked)});
-$( "[name='email_notification']" ).change(function(){change_config('CONFIG.EMAIL_NOTIFICATION', $(this)[0].checked)});
-$( "#stop_services" ).change(function(){change_config('CONFIG.STOPSERVICES', $(this).val().replace(/(?:\r\n|\r|\n)/g, ','))});
+	$( ".schedule" ).change(function(){change_cronjob(this)});
+	$( ".retention" ).change(function(){change_config($(this).attr('data-key') + '.' + 'RETENTION', $(this).val())});
+	$( "#jittype" ).change(function(){change_config('JITBACKUP.TYPE', $("#jittype :radio:checked").val())});
+	$( "#jit_destination" ).change(function(){change_config('JITBACKUP.DESTINATION', $(this).val(), this)});
+	$( "[name='fake_backup']" ).change(function(){change_config('CONFIG.FAKE_BACKUP', $(this)[0].checked)});
+	$( "#NOTIFY_BACKUP_INFOS" ).change(function(){change_config('CONFIG.NOTIFY_BACKUP_INFOS', $(this)[0].checked)});
+	$( "#NOTIFY_BACKUP_ERRORS" ).change(function(){change_config('CONFIG.NOTIFY_BACKUP_ERRORS', $(this)[0].checked)});
+	$( "[name='email_notification']" ).change(function(){change_config('CONFIG.EMAIL_NOTIFICATION', $(this)[0].checked)});
+	$( "#stop_services" ).change(function(){change_config('CONFIG.STOPSERVICES', $(this).val().replace(/(?:\r\n|\r|\n)/g, ','))});
 
 
-// Get numbers of raspiBackup PIDs every 5 seconds and update submit button status
-setInterval(function() {
-  // method to be executed;
-getText('<TMPL_VAR NAME=CHECKPIDURL>', mycallback); //passing mycallback as a method  
-}, 5000);
+	// Get numbers of raspiBackup PIDs every 5 seconds and update submit button status
+	setInterval(function() {
+	  // method to be executed;
+	getText('<TMPL_VAR NAME=CHECKPIDURL>', mycallback); //passing mycallback as a method  
+	}, 5000);
 
-getText = function(url, callback) // How can I use this callback?
-{
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function()
-    {
-        if (request.readyState == 4 && request.status == 200)
-        {
-            callback(request.responseText); // Another callback here
-        }
-    }; 
-    request.open('GET', url);
-    request.send();
-}
-
-var requestcounter = 0;
-function change_cronjob(element)
-{
-	var key = $(element).attr('data-key');
-	$("#"+key+"_schedule_processing").show();
-	var period = $("#"+key+"_schedule_time").val();
-	var timebase = $("#"+key+"_schedule_timebase").val();
-	var clock = $("#"+key+"_schedule_clock").val();
-	console.log("Key", key, "period", period, "Timebase", timebase, "Clock", clock);
-	
-	
-	if( timebase == "days" ) {
-		$("#"+key+"_clock_wrapper").show();
-	} else {
-		$("#"+key+"_clock_wrapper").hide();
+	getText = function(url, callback) // How can I use this callback?
+	{
+		var request = new XMLHttpRequest();
+		request.onreadystatechange = function()
+		{
+			if (request.readyState == 4 && request.status == 200)
+			{
+				callback(request.responseText); // Another callback here
+			}
+		}; 
+		request.open('GET', url);
+		request.send();
 	}
+
+	var requestcounter = 0;
+	function change_cronjob(element)
+	{
+		var key = $(element).attr('data-key');
+		$("#"+key+"_schedule_processing").show();
+		var period = $("#"+key+"_schedule_time").val();
+		var timebase = $("#"+key+"_schedule_timebase").val();
+		var clock = $("#"+key+"_schedule_clock").val();
+		console.log("Key", key, "period", period, "Timebase", timebase, "Clock", clock);
 		
-	// console.log ("img:", $("#"+key+"_schedule_processing").attr('src'));
-	requestcounter++;
-	$.post( "", { action: 'changecron', key: key, period: period, timebase: timebase, clock: clock })
-	.done(function(res){
-		requestcounter--;
-		// console.log ("Active requests", requestcounter);
-		if (requestcounter <= 0) $("#"+key+"_schedule_processing").hide();
-	});
-
-}
-
-function change_config(key, value, srcelement)
-{
-	// console.log("key", key, "value", value);
-	// $("#"+key+"_schedule_processing").show();
-	
-	$.post( "", { action: 'changeconfig', key: key, value: value })
-	.done(function(res){
-		if (srcelement) {
-			var elem = $("#"+$(srcelement).attr("id")+"_hint");
-			if (res) elem.text(res);
-			else elem.text("");
+		
+		if( timebase == "days" ) {
+			$("#"+key+"_clock_wrapper").show();
+		} else {
+			$("#"+key+"_clock_wrapper").hide();
 		}
+			
+		// console.log ("img:", $("#"+key+"_schedule_processing").attr('src'));
+		requestcounter++;
+		$.post( "", { action: 'changecron', key: key, period: period, timebase: timebase, clock: clock })
+		.done(function(res){
+			requestcounter--;
+			// console.log ("Active requests", requestcounter);
+			if (requestcounter <= 0) $("#"+key+"_schedule_processing").hide();
+		});
+
+	}
+
+	function change_config(key, value, srcelement)
+	{
+		// console.log("key", key, "value", value);
+		// $("#"+key+"_schedule_processing").show();
+		
+		$.post( "", { action: 'changeconfig', key: key, value: value })
+		.done(function(res){
+			if (srcelement) {
+				var elem = $("#"+$(srcelement).attr("id")+"_hint");
+				if (res) elem.text(res);
+				else elem.text("");
+			}
+		});
+
+	}
+
+
+	function mycallback(data) {
+	   // alert(data);
+	   if (data != "0\n")
+		{ $("#jit_submit").prop("disabled",true);
+		  $("#jit_submit").val("<TMPL_VAR COMMON.BUTTON_RUNNING>").button("refresh");
+		}
+		else {
+		  $("#jit_submit").prop("disabled",false);
+		  $("#jit_submit").val("<TMPL_VAR COMMON.BUTTON_START>").button("refresh");
+		}
+	}
+
+	$("#jit_submit").click(function(){
+		// $("form#main_form").submit();
+		$("#jit_submit").prop("disabled",true);
+		$("#jit_submit").val("<TMPL_VAR COMMON.BUTTON_STARTING>").button("refresh");
+		$.post( "", { action: 'runbackup' })
+		.done(function(res){
+		  $("#jit_submit").prop("disabled",true);
+		  $("#jit_submit").val("<TMPL_VAR COMMON.BUTTON_RUNNING>").button("refresh");
+		
+		});
 	});
 
-}
 
+	</script>
 
-function mycallback(data) {
-   // alert(data);
-   if (data != "0\n")
-	{ $("#jit_submit").prop("disabled",true);
-	  $("#jit_submit").val("<TMPL_VAR COMMON.BUTTON_RUNNING>").button("refresh");
-	}
-	else {
-	  $("#jit_submit").prop("disabled",false);
-	  $("#jit_submit").val("<TMPL_VAR COMMON.BUTTON_START>").button("refresh");
-	}
-}
+</TMPL_IF>
 
-$("#jit_submit").click(function(){
-	// $("form#main_form").submit();
-	$("#jit_submit").prop("disabled",true);
-	$("#jit_submit").val("<TMPL_VAR COMMON.BUTTON_STARTING>").button("refresh");
-	$.post( "", { action: 'runbackup' })
-	.done(function(res){
-	  $("#jit_submit").prop("disabled",true);
-	  $("#jit_submit").val("<TMPL_VAR COMMON.BUTTON_RUNNING>").button("refresh");
-	
-	});
-});
-
-
-</script>
+<TMPL_IF logfilesform>
+	<TMPL_VAR logfilelist_html>
+</TMPL_IF>

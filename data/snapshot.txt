@@ -1,0 +1,1 @@
+ rsync --info=progress2 --numeric-ids -aHXv --exclude=/loxberry-dev-backup.* "/media/usb/9daec47a-01/rsync/loxberry-dev/loxberry-dev-rsync-backup-20180910-100844/" "/"

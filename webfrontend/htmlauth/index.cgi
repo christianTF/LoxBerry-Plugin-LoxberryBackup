@@ -38,7 +38,7 @@ our  $cgi = CGI->new;
 my  $pcfg;
 my  $lang;
 my  $languagefile;
-my  $version = "1.0.3.1";
+my  $version = "1.0.4.1";
 my  $pname;
 my  $languagefileplugin;
 my $topmenutemplate;
@@ -154,17 +154,6 @@ $maintemplate = HTML::Template->new(
 
 
 ##########################################################################
-# Process form data
-##########################################################################
-
-if ($R::jit_backup) {
-	# Data were posted - save 
-	&jit_backup;
-}
-
-$p = $pcfg->vars();
-
-##########################################################################
 # Initialize html templates
 ##########################################################################
 
@@ -175,15 +164,32 @@ $navbar{1}{URL} = 'index.cgi';
 $navbar{1}{Notify_Package} = $lbpplugindir;
 # $navbar{1}{Notify_NAme} = 'daemon';
  
-$navbar{2}{Name} = $L{'COMMON.LOGFILE'};
-$navbar{2}{URL} = "/admin/system/tools/logfile.cgi?logfile=plugins/$lbpplugindir/raspiBackup.log&header=html&format=template";
-$navbar{2}{target} = "_blank";
+$navbar{2}{Name} = $L{'COMMON.LOGFILES'};
+$navbar{2}{URL} = "?form=logfiles";
+$navbar{2}{Notify_Package} = $lbpplugindir;
  
-$navbar{1}{active} = 1;
+
+##########################################################################
+# Process form data
+##########################################################################
+
+if ($R::form eq 'logfiles') {
+	logfiles();
+}
+
+if ($R::jit_backup) {
+	# Data were posted - save 
+	&jit_backup;
+}
+
+$p = $pcfg->vars();
 
 ##########################################################################
 # Create some variables for the Template
 ##########################################################################
+
+$navbar{1}{active} = 1;
+$maintemplate->param('mainform', 1);
 
 ###
 # As an example: we create some vars for the template
@@ -305,19 +311,8 @@ if (@stop_services_array) {
 $maintemplate->param( STOP_SERVICES => $stop_services);
 						
 $maintemplate->param( CHECKPIDURL => "./grep_raspibackup.cgi");
-						
-##########################################################################
-# Print Template
-##########################################################################
 
-# Header
-LoxBerry::Web::lbheader("LoxBerry Backup", "http://www.loxwiki.eu:80/x/14U_AQ");
-print LoxBerry::Log::get_notifications_html($lbpplugindir);
-print $maintemplate->output;
-
-LoxBerry::Web::lbfooter();
-
-exit;
+printTemplate();
 
 ##########################################################################
 # AJAX routines
@@ -449,4 +444,35 @@ sub installcrontab
 		return(0);
 	}
 	return(1);
+}
+
+sub logfiles
+{
+	$navbar{2}{active} = 1;
+	
+	$maintemplate->param('logfilesform', 1);
+	
+	require LWP::UserAgent;
+	my $ua = new LWP::UserAgent;
+	my $response = $ua->get('http://'.lbhostname().':'.lbwebserverport().'/admin/system/tools/showalllogs.cgi?package=lbbackup&header=none');
+	$maintemplate->param('logfilelist_html', $response->content);
+	printTemplate();
+
+}
+
+
+##########################################################################
+# Print Template
+##########################################################################
+sub printTemplate
+{						
+
+	# Header
+	LoxBerry::Web::lbheader("LoxBerry Backup", "http://www.loxwiki.eu:80/x/14U_AQ");
+	print LoxBerry::Log::get_notifications_html($lbpplugindir);
+	print $maintemplate->output;
+
+	LoxBerry::Web::lbfooter();
+
+	exit;
 }
