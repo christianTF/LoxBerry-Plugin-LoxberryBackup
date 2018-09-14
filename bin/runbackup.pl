@@ -50,6 +50,9 @@ if (! is_enabled($R::scheduled)) {
 	$dest = $p{'JITBACKUP.DESTINATION'} ? $p{'JITBACKUP.DESTINATION'} : undef;
 	LOGINF "* JIT Backuptype is $p{'JITBACKUP.TYPE'}";
 	LOGINF "* JIT Destination is set to $dest" if ($dest); 
+	$log->logtitle("Just-In-Time Backup $p{'JITBACKUP.TYPE'}");
+} else {
+	$log->logtitle("Scheduled Backup ". uc($R::type));
 }
 
 # Locking
