@@ -452,10 +452,13 @@ sub logfiles
 	
 	$maintemplate->param('logfilesform', 1);
 	
-	require LWP::UserAgent;
-	my $ua = new LWP::UserAgent;
-	my $response = $ua->get('http://'.lbhostname().':'.lbwebserverport().'/admin/system/tools/showalllogs.cgi?package=lbbackup&header=none');
-	$maintemplate->param('logfilelist_html', $response->content);
+	# require LWP::UserAgent;
+	# my $ua = new LWP::UserAgent;
+	# my $response = $ua->get('http://'.lbhostname().':'.lbwebserverport().'/admin/system/tools/showalllogs.cgi?package=lbbackup&header=none');
+	
+	my $loglist = LoxBerry::Web::loglist_html();
+	
+	$maintemplate->param('logfilelist_html', $loglist);
 	printTemplate();
 
 }
