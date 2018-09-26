@@ -458,6 +458,13 @@ sub logfiles
 	
 	my $loglist = LoxBerry::Web::loglist_html();
 	
+	my $loglevel_html;
+	eval {
+		$loglevel_html = LoxBerry::Web::loglevel_select_html();
+		$maintemplate->param('loglevel_html', $loglevel_html);
+	
+	};
+	
 	$maintemplate->param('logfilelist_html', $loglist);
 	printTemplate();
 
