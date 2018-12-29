@@ -139,7 +139,9 @@ servicelist();
 
 push @params, email_params() if is_enabled($p{'CONFIG.EMAIL_NOTIFICATION'});
 push @params, "-F" if is_enabled($p{'CONFIG.FAKE_BACKUP'});
-push @params, "-N", '"fstab disk temp"';
+# Extensions 'disk' and 'temp' do not work
+# push @params, "-N", '"fstab disk temp"';
+push @params, "-N", '"fstab"';
 push @params, "-o", '"' . trim($par_stopservices) . '"';
 push @params, "-a", '"' . trim($par_startservices) . '"';
 push @params, "-k", $bc->{'RETENTION'};
