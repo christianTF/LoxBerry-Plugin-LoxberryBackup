@@ -254,12 +254,27 @@ sub email_params
 	my $friendlyname;
 	
 	$friendlyname = trim(lbfriendlyname() . " LoxBerry");
-	my $mailcfg = new Config::Simple("$lbsconfigdir/mail.cfg");
-	unless($mailadr = $mailcfg->param("SMTP.EMAIL"))
-	{ 		
-	LOGWARN "raspiBackup mail notification is enabled, but no LoxBerry mail configuration is done - skipping sending e-mails";
-	return;
+	
+	# LoxBerry 1.4 mail.json
+	if (-e "$lbsconfigdir/mail.json") {
+		eval {
+			require LoxBerry::JSON;
+			my $jsonobj = LoxBerry::JSON->new();
+			my $mcfg = $jsonobj->open(filename => "$lbsconfigdir/mail.json", readonly => 1);
+			$mailadr = $mcfg->{SMTP}->{EMAIL};
+		};
+	} elsif (-e "$lbsconfigdir/mail.cfg") {
+		eval {
+			my $mailcfg = new Config::Simple("$lbsconfigdir/mail.cfg");
+			$mailadr = $mailcfg->param("SMTP.EMAIL");
+		};
 	}
+	
+	if ($mailadr eq "") { 		
+		LOGWARN "raspiBackup mail notification is enabled, but no LoxBerry mail configuration is done - skipping sending e-mails";
+		return;
+	}
+	
 	LOGOK "LoxBerry mail configuration read for raspiBackup e-mails.";
 	
 	# The -E parameter currently does not work in raspiBackup
