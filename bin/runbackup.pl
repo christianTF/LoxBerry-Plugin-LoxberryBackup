@@ -121,19 +121,37 @@ $dest = $dest ? $dest : $bc->{'DESTINATION'};
 qx { ls $dest };
 sleep 1;
 
-if (! -e $dest) {
-	LOGINF "Destination directory does not exist - try to create...";
-	$output = qx { mkdir -p $dest };
-	$exitcode  = $? >> 8;
-	if($exitcode != 0) {
-		LOGCRIT "Error creating destination directory: $output";
-		LOGEND;
-		notify($lbpplugindir, "Backup", "Cannot create destination directory $dest. No permissions? Error $output", "error");
-		exit(1);
+my $dest_exists = 1;
+my $i;
+for($i = 1; $i <= 10; $i++) {
+	LOGINF "Try $i to create destination directory";
+	if (! -e $dest) {
+		$dest_exists = 0;
+		LOGINF "Destination directory does not exist - try to create...";
+		$output = qx { mkdir -p $dest };
+		$exitcode  = $? >> 8;
+		if($exitcode != 0) {
+			$dest_exists = 0;
+			LOGWARN "Try $i error: $output. Waiting 10 seconds...";
+			sleep 10;
+		} else {
+			$dest_exists = 1;
+			LOGOK "Destination directory was created.";
+		}
 	}
-	LOGOK "Destination directory was created.";
-	qx { chown loxberry:loxberry $dest };
+	if($dest_exists == 1) {
+		last;
+	}
 }
+
+if (! -e $dest) {
+	LOGCRIT "Error creating destination directory after $i tries. Exiting.";
+	LOGEND;
+	notify($lbpplugindir, "Backup", "Cannot create destination directory $dest. No permissions? Error $output", "error");
+	exit(1);
+}
+
+qx { chown loxberry:loxberry $dest };
 
 servicelist();
 
