@@ -219,6 +219,7 @@ my $jit_path = LoxBerry::Storage::get_storage_html(
 	type_usb => 1,
 	type_net => 1,
 	type_custom => 1,
+	show_browse => 1,
 );
 $maintemplate->param( 'DROPDOWN_JIT_DESTINATION' => $jit_path );
 
@@ -271,6 +272,7 @@ foreach my $type (@backuptypes) {
 		type_net => 1,
 		type_custom => 1,
 		data_mini => 1,
+		show_browse => 1,
 	);
 	
 	push @backupselection, \%val;
