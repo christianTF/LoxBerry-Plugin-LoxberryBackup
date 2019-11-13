@@ -153,6 +153,15 @@ if (! -e $dest) {
 
 qx { chown loxberry:loxberry $dest };
 
+# Check if the destination is an external storage
+if ( ! is_mountpoint($dest)) {
+	my %L = LoxBerry::System::readlanguage(undef, "language.ini");
+	LOGERR $L{"BACKUP.HINT_NOT_AN_EXTERNAL_DEVICE"} . " ($dest)";
+	LOGWARN "Please report, if you got this error, but your destination $dest is definitively an external storage (this may be a bug in the check). Backup will try to continue, but may fail with the same error.";
+	notify($lbpplugindir, "Backup", "Destination $dest: " . $L{"BACKUP.HINT_NOT_AN_EXTERNAL_DEVICE"}, "error");
+	# In this version we continue to try the backup, but if the mountpoint check is ok, in future versions we will stop here
+}
+
 servicelist();
 
 push @params, email_params() if is_enabled($p{'CONFIG.EMAIL_NOTIFICATION'});
@@ -342,3 +351,40 @@ sub formatSize {
 
         return wantarray ? ($size, $units->[$exp]) : sprintf("%.2f %s", $size, $units->[$exp]);
     }
+	
+
+sub is_mountpoint {
+	
+	# my $mounts = LoxBerry::System::read_file('/proc/mounts');
+	my ($rel_searchpath) = @_;
+	my $abs_searchpath;
+	my %mounts;
+	my $is_mountpoint = 0;
+	
+	require Cwd;
+	$abs_searchpath = Cwd::abs_path($rel_searchpath);
+#	print STDERR "is_mountpoint: rel_searchpath: $rel_searchpath\n";
+#	print STDERR "is_mountpoint: abs_searchpath: $abs_searchpath\n";
+	
+	open my $handle, '<', '/proc/mounts';
+	chomp(my @lines = <$handle>);
+	close $handle;
+	
+	
+	foreach( @lines ) {
+		#print STDERR "is_mountpoint: Found line $_\n";
+		my ($mdev, $mpoint) = split / /, $_, 3;
+		#print STDERR "is_mountpoint: mpoint is $mpoint\n";
+		next if ($mpoint eq '/');
+#		print STDERR "is_mountpoint: begins_with $abs_searchpath <--> $mpoint\n";
+#		print STDERR "is_mountpoint: begins_with returns " . LoxBerry::System::begins_with( $abs_searchpath, $mpoint ) . "\n";
+		
+		if( LoxBerry::System::begins_with( $abs_searchpath, $mpoint ) ) {
+			$is_mountpoint = 1;
+			last;
+		}
+	}
+#	print STDERR "is_mountpoint: Returning $is_mountpoint\n";
+		
+	return $is_mountpoint;
+}

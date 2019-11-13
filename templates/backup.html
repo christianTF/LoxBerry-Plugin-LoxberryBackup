@@ -230,10 +230,12 @@
 		// console.log("key", key, "value", value);
 		// $("#"+key+"_schedule_processing").show();
 		
+		var elem = $("#"+$(srcelement).attr("id")+"_hint");
+		elem.text("<TMPL_VAR COMMON.SAVING>");
 		$.post( "", { action: 'changeconfig', key: key, value: value })
 		.done(function(res){
 			if (srcelement) {
-				var elem = $("#"+$(srcelement).attr("id")+"_hint");
+				// var elem = $("#"+$(srcelement).attr("id")+"_hint");
 				if (res) elem.text(res);
 				else elem.text("");
 			}

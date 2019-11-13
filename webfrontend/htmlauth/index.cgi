@@ -68,7 +68,10 @@ my @backuptypes = ( "DDZ", "TGZ", "RSYNC");
 
 $cgi->import_names('R');
 
-
+# Remove 'only used once' warnings
+$R::clock if 0;
+$R::form if 0;
+$R::jit_backup if 0;
 
 ##########################################################################
 # Read and process config
@@ -395,6 +398,8 @@ sub ajax
 	}
 	if ($R::action eq "changeconfig" && $R::key) 
 	{
+		# print $cgi->header(-type => "text/html; charset=utf-8");
+		
 		my @tmp_key = split(/\./, $R::key);
 				
 		
@@ -410,16 +415,26 @@ sub ajax
 			print $cgi->header(-status => "500 Error writing plugin config");
 			exit(1);
 		}
-		print $cgi->header(-status => "200 Written to plugin config");
+		print $cgi->header(
+						-status => "200 OK",
+						-type => "text/html; charset=utf-8"
+		);
 		
 		print STDERR "tmp_key1: $tmp_key[1] \n";
 		print STDERR "value: $R::value \n";
 		
+		if ($tmp_key[1] && $tmp_key[1] eq "DESTINATION") {
 		
-		if ($tmp_key[1] && $tmp_key[1] eq "DESTINATION" && ! -d $R::value) {
-			%L = LoxBerry::System::readlanguage(undef, "language.ini");
-			print $L{'BACKUP.HINT_DEST_DOES_NOT_EXIST'};
+			if ( ! is_mountpoint($R::value)) {
+				%L = LoxBerry::System::readlanguage(undef, "language.ini");
+				print $L{"BACKUP.HINT_NOT_AN_EXTERNAL_DEVICE"};
+			}
+			if (! -d $R::value) {
+				%L = LoxBerry::System::readlanguage(undef, "language.ini");
+				print $L{'BACKUP.HINT_DEST_DOES_NOT_EXIST'};
+			}
 		}
+		
 	}
 	
 	if ($R::action eq "runbackup") {
@@ -460,6 +475,43 @@ sub logfiles
 	printTemplate();
 
 }
+
+sub is_mountpoint
+{
+	# my $mounts = LoxBerry::System::read_file('/proc/mounts');
+	my ($rel_searchpath) = @_;
+	my $abs_searchpath;
+	my %mounts;
+	my $is_mountpoint = 0;
+	
+	require Cwd;
+	$abs_searchpath = Cwd::abs_path($rel_searchpath);
+	# print STDERR "is_mountpoint: rel_searchpath: $rel_searchpath\n";
+	# print STDERR "is_mountpoint: abs_searchpath: $abs_searchpath\n";
+	
+	open my $handle, '<', '/proc/mounts';
+	chomp(my @lines = <$handle>);
+	close $handle;
+	
+	
+	foreach( @lines ) {
+		#print STDERR "is_mountpoint: Found line $_\n";
+		my ($mdev, $mpoint) = split / /, $_, 3;
+		#print STDERR "is_mountpoint: mpoint is $mpoint\n";
+		next if ($mpoint eq '/');
+		# print STDERR "is_mountpoint: begins_with $abs_searchpath <--> $mpoint\n";
+		# print STDERR "is_mountpoint: begins_with returns " . LoxBerry::System::begins_with( $abs_searchpath, $mpoint ) . "\n";
+		
+		if( LoxBerry::System::begins_with( $abs_searchpath, $mpoint ) ) {
+			$is_mountpoint = 1;
+			last;
+		}
+	}
+	# print STDERR "is_mountpoint: Returning $is_mountpoint\n";
+		
+	return $is_mountpoint;
+}
+
 
 
 ##########################################################################
