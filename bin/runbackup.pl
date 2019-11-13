@@ -297,8 +297,8 @@ sub email_params
 	
 	LOGOK "LoxBerry mail configuration read for raspiBackup e-mails.";
 	
-	# The -E parameter currently does not work in raspiBackup
-	#return ("-e", $mailadr, "-E \"-r $mailadr\"");
+	# Updated -E parameter to escape -r with backslash. As in LB2.0 the sender automatically is set, not required anymore
+	# return ("-e", $mailadr, "-E \"\\-r $mailadr\"");
 	
 	return ("-e", $mailadr);
 	
