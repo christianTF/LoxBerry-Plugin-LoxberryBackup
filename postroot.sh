@@ -10,6 +10,8 @@ bash REPLACELBPDATADIR/raspiBackupInstall.sh -c
 chmod +x $5/data/plugins/$3/raspiBackup*.sh
 mv -u -f $5/data/plugins/$3/raspiBackup_*.sh /usr/local/bin/
 
+echo "<INFO>Framp's raspiBackup version installed:"
+bash /usr/local/bin/raspiBackup.sh --version
 
 # We have to default raspiBackup to not zip, as we cannot override this for rsync backups (will fail)
 #	sed -i.bak 's/^\(DEFAULT_ZIP_BACKUP=\).*/\1"0"/' $lbbackupconfig 
