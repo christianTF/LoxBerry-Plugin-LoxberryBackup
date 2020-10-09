@@ -1,0 +1,97 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+use LoxBerry::JSON;
+use LoxBerry::Log;
+
+my %health;
+my @text;
+
+$health{desc} = "Warns if LoxBerry Backup failed running backups.";
+
+# Parse commandline options
+my $option = shift @ARGV;
+if( $option ne "check" ) {
+	exit;
+}
+
+# Read notifications
+my ($check_err, $check_ok, $check_sum) = get_notification_count( $lbpplugindir, "notificationname");
+if( $check_err > 0 ) {
+	setstatus(3);
+	push @text, "You have $check_err pending error notifications:";
+} else {
+	setstatus(5);
+	push @text, "No error notifications pending.";
+}
+
+if( $check_sum > 0 ) {
+	push @text, "Last notification:";
+	# Read notifications
+	my @notifications = get_notifications( $lbpplugindir, "Backup");
+	push @text, "ERROR:" if ( $notifications[0]->{SEVERITY} eq "3" );
+	push @text, "Info:" if ( $notifications[0]->{SEVERITY} eq "6" );
+	push @text, $notifications[0]->{CONTENTRAW};
+}
+
+# Check crontab
+use Config::Crontab;
+my $crontab = new Config::Crontab;
+$crontab->system(1); ## Wichtig, damit der User im File berücksichtigt wird
+$crontab->read( -file => "$lbhomedir/system/cron/cron.d/$lbpplugindir" );
+
+my @backupselection;
+my @backuptypes = ( "DDZ", "TGZ", "RSYNC");
+my $has_schedule = 0;
+
+foreach my $type (@backuptypes) {
+	my %val;
+	my ($comment) = $crontab->select( -type => 'comment', -data => '## Backuptype ' . $type );
+	# print STDERR "Comment found\n" if ($comment);
+	my ($block) = $crontab->block($comment) if ($comment);
+	# print STDERR "Block found\n" if ($block);
+	my ($event) = $block->select ( -type => 'event' ) if ($block);
+	#print STDERR "Event: " . $event->command() . "\n" if ($event);
+	if ($event) {
+		my @tmp_days = split(/\//, $event->dom(), 2);
+		my @tmp_hours = split(/\//, $event->hour(), 2);
+		if ($tmp_days[1]) {
+			$has_schedule++;
+		} elsif ($tmp_hours[1]) {
+			$has_schedule++;
+		} 
+		#print STDERR "$type Event: " . $event->hour . " hr / " . $event->dom()  . " day\n";
+	}
+}
+
+if ( $has_schedule ) {
+	setstatus(5);
+	push @text, "You have $has_schedule backups scheduled.";
+} else {
+	setstatus(4);
+	push @text, "You have no backup scheduled.";
+}
+
+
+
+sub setstatus
+{
+	my $newstatus = shift;
+	exit if (!$newstatus);
+	if( !$health{status} or $newstatus < $health{status} ) {
+		$health{status} = $newstatus;
+	}
+}
+
+
+	
+END
+{
+	if( @text ) {
+		$health{result} = join ' ', @text;
+	}
+	
+	if ( %health ) {
+		print encode_json( \%health ) . "\n";
+	}
+}
