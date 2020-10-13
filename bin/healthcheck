@@ -30,7 +30,7 @@ if( $check_err > 0 ) {
 if( $check_sum > 0 ) {
 	push @text, "Last notification: ***";
 	# Read notifications
-	my @notifications = get_notifications( $lbpplugindir, "Backup");
+	my @notifications = get_notifications( 'lbbackup', "Backup");
 	push @text, "ERROR:" if ( $notifications[0]->{SEVERITY} eq "3" );
 	push @text, "Info:" if ( $notifications[0]->{SEVERITY} eq "6" );
 	push @text, $notifications[0]->{CONTENTRAW};
