@@ -3,12 +3,15 @@
 
 echo "<INFO> Installing raspiBackup"
 
-# Install raspiBackup
-chmod +x REPLACELBPDATADIR/raspiBackupInstall.sh
-bash REPLACELBPDATADIR/raspiBackupInstall.sh -c
+# Copy raspiBackup Config
+cp -f $5/data/plugins/$3/raspiBackup.conf /usr/local/etc/
+
+# Copy raspiBackup
+
 
 chmod +x $5/data/plugins/$3/raspiBackup*.sh
-mv -u -f $5/data/plugins/$3/raspiBackup_*.sh /usr/local/bin/
+mv -f $5/data/plugins/$3/raspiBackup.sh /usr/local/bin/
+mv -f $5/data/plugins/$3/raspiBackup_*.sh /usr/local/bin/
 
 echo "<INFO>Framp's raspiBackup version installed:"
 bash /usr/local/bin/raspiBackup.sh --version
