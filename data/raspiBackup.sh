@@ -4161,6 +4161,12 @@ function tarBackup() {
 
 	logExit  "$rc"
 
+	# CHRISTIAN FENZL PATCH für TAR returning 1 (files changed during backup)
+
+	if [[ "$rc" == "1" ]]; then
+		rc=0
+	fi
+
 	return $rc
 }
 
