@@ -47,6 +47,9 @@
 
 	</style>
 
+	<p class="wide"><TMPL_VAR BACKUP.HEADER_RASPIBACKUP_OPTIONS></p>
+		<input type="checkbox" name="UNSUPPORTED_ENVIORNMENT" id="UNSUPPORTED_ENVIORNMENT" class="NOTIFY" <TMPL_VAR UNSUPPORTED_ENVIORNMENT>><label for="UNSUPPORTED_ENVIORNMENT"><TMPL_VAR BACKUP.UNSUPPORTED_ENVIORNMENT></label>
+
 	<p  class="wide"><TMPL_VAR BACKUP.HEADER_TIMETABLE></p>
 	<table class="ui-widget" style="border-collapse:collapse;"  border="1" width="95%">
 	<!--
@@ -175,7 +178,7 @@
 	$( "#NOTIFY_BACKUP_ERRORS" ).change(function(){change_config('CONFIG.NOTIFY_BACKUP_ERRORS', $(this)[0].checked)});
 	$( "[name='email_notification']" ).change(function(){change_config('CONFIG.EMAIL_NOTIFICATION', $(this)[0].checked)});
 	$( "#stop_services" ).change(function(){change_config('CONFIG.STOPSERVICES', $(this).val().replace(/(?:\r\n|\r|\n)/g, ','))});
-
+	$( "#UNSUPPORTED_ENVIORNMENT" ).change(function(){change_config('CONFIG.UNSUPPORTED_ENVIORNMENT', $(this)[0].checked)});
 
 	// Get numbers of raspiBackup PIDs every 5 seconds and update submit button status
 	setInterval(function() {

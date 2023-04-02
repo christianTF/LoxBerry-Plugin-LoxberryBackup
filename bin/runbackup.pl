@@ -179,6 +179,7 @@ push @params, "-l", "debug" if ($loglevel == 7);
 push @params, "-m", "minimal" if ($loglevel <= 5);
 push @params, "-m", "detailed" if ($loglevel > 5);
 push @params, "-v" if ($loglevel == 7);
+push @params, "--unsupportedEnvironment" if is_enabled($p{'CONFIG.UNSUPPORTED_ENVIORNMENT'});
 
 push @params, $dest;
 
@@ -351,7 +352,7 @@ sub formatSize {
 
         return wantarray ? ($size, $units->[$exp]) : sprintf("%.2f %s", $size, $units->[$exp]);
     }
-	
+
 
 sub is_mountpoint {
 	
