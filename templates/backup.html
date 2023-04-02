@@ -178,7 +178,7 @@
 	$( "#NOTIFY_BACKUP_ERRORS" ).change(function(){change_config('CONFIG.NOTIFY_BACKUP_ERRORS', $(this)[0].checked)});
 	$( "[name='email_notification']" ).change(function(){change_config('CONFIG.EMAIL_NOTIFICATION', $(this)[0].checked)});
 	$( "#stop_services" ).change(function(){change_config('CONFIG.STOPSERVICES', $(this).val().replace(/(?:\r\n|\r|\n)/g, ','))});
-
+	$( "#UNSUPPORTED_ENVIORNMENT" ).change(function(){change_config('CONFIG.UNSUPPORTED_ENVIORNMENT', $(this)[0].checked)});
 
 	// Get numbers of raspiBackup PIDs every 5 seconds and update submit button status
 	setInterval(function() {

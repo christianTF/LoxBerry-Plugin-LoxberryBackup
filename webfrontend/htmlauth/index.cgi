@@ -295,6 +295,12 @@ if (is_enabled($p->{"CONFIG.NOTIFY_BACKUP_ERRORS"})) {
 	$maintemplate->param("NOTIFY_BACKUP_ERRORS", '');
 }
 
+if (is_enabled($p->{"CONFIG.UNSUPPORTED_ENVIORNMENT"})) {
+	$maintemplate->param("UNSUPPORTED_ENVIORNMENT", 'checked="checked"');
+} else {
+	$maintemplate->param("UNSUPPORTED_ENVIORNMENT", '');
+}
+
 my $email_notification_html = checkbox(-name => 'email_notification',
 								  -checked => is_enabled($p->{'CONFIG.EMAIL_NOTIFICATION'}),
 									-value => 1,
